@@ -14,13 +14,13 @@ describe("content exports", () => {
       3: 9,
       4: 2,
       5: 5,
-      6: 6,
+      6: 12,
       7: 14,
       8: 6,
       9: 6,
       10: 122,
     });
-    expect(allNodes).toHaveLength(187);
+    expect(allNodes).toHaveLength(193);
     expect(glossary()).toHaveLength(117);
   });
 });
