@@ -257,10 +257,14 @@ export const validateContent = (options: ValidateOptions = {}): ValidationResult
     });
   }
 
+  // Line-count drift is just as serious as SHA-256 drift: both mean the
+  // manifest is out of sync with the snapshot, and line refs in nodes may
+  // point at the wrong text. Surface it as rule 10 so the build fails.
   if (source.lineCount && source.lineCount !== manifest.sourceLineCount) {
-    warnings.push({
+    errors.push({
+      rule: 10,
       field: "sourceLineCount",
-      message: `Source line count ${String(source.lineCount)} differs from manifest ${String(manifest.sourceLineCount)}`,
+      message: `Source line count ${String(source.lineCount)} differs from manifest ${String(manifest.sourceLineCount)}. Run \`pnpm --filter @spcx/content refresh-manifest\`.`,
     });
   }
 

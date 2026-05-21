@@ -11,10 +11,17 @@ interface MissionBriefingProps {
 
 export const MissionBriefing = ({ nodes }: MissionBriefingProps) => {
   const open = useUIStore((state) => state.modalOpen);
+  const hasHydrated = useUIStore((state) => state.hasHydrated);
   const dismiss = useUIStore((state) => state.dismissModal);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
+    // Wait for the persisted store to hydrate before deciding whether to
+    // open the dialog — otherwise returning visitors with `modalDismissed:
+    // true` would see the modal flash open during hydration before the
+    // store rehydrates and closes it.
+    if (!hasHydrated) return;
+
     const dialog = dialogRef.current;
     if (!dialog) {
       return;
@@ -27,7 +34,7 @@ export const MissionBriefing = ({ nodes }: MissionBriefingProps) => {
     if (!open && dialog.open) {
       dialog.close();
     }
-  }, [open]);
+  }, [hasHydrated, open]);
 
   return (
     <dialog

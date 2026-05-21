@@ -14,6 +14,7 @@ interface UIState {
   chapterIndexOpen: boolean;
   reducedMotion: boolean;
   scrollProgress: number;
+  hasHydrated: boolean;
   setLocale: (locale: Locale) => void;
   toggleAudio: () => void;
   toggleSource: () => void;
@@ -32,11 +33,17 @@ export const useUIStore = create<UIState>()(
       locale: "en",
       audioOn: false,
       sourceVisible: false,
-      modalOpen: true,
+      // Default modalOpen to false. After rehydration completes,
+      // `onRehydrateStorage` flips it to true for first-time visitors
+      // (no persisted `modalDismissed`). Returning visitors who have
+      // dismissed see no modal flash because we never render it open
+      // pre-hydration.
+      modalOpen: false,
       modalDismissed: false,
       chapterIndexOpen: false,
       reducedMotion: false,
       scrollProgress: 0,
+      hasHydrated: false,
       setLocale: (locale) => set({ locale }),
       toggleAudio: () => set((state) => ({ audioOn: !state.audioOn })),
       toggleSource: () => set((state) => ({ sourceVisible: !state.sourceVisible })),
@@ -72,8 +79,13 @@ export const useUIStore = create<UIState>()(
         modalDismissed: state.modalDismissed,
       }),
       onRehydrateStorage: () => (state) => {
-        if (state?.modalDismissed) {
-          state.modalOpen = false;
+        if (!state) return;
+        state.hasHydrated = true;
+        // First-time visitor (no persisted dismissal) → show the modal
+        // now that we've safely hydrated. Returning dismissed visitor
+        // sees nothing.
+        if (!state.modalDismissed) {
+          state.modalOpen = true;
         }
       },
     },
