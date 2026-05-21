@@ -1,12 +1,15 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import type { SourceRef } from "./schema";
 
 export const SOURCE_FILE = "sources/20260520_SpaceX_S-1_SEC-Filing.md";
 
-export const SOURCE_PATH = fileURLToPath(new URL(`../../../${SOURCE_FILE}`, import.meta.url));
+const MODULE_DIR = path.dirname(fileURLToPath(import.meta.url));
+
+export const SOURCE_PATH = path.resolve(MODULE_DIR, "../../../", SOURCE_FILE);
 
 export interface LoadedSource {
   path: string;
