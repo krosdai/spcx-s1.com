@@ -5,7 +5,7 @@ export const stage5Nodes = [
     id: "stage5.roadmap.why-now",
     stage: 5,
     kind: "prose",
-    lineStart: 700,
+    lineStart: 715,
     lineEnd: 758,
     sectionTitle: "Why This Matters Now",
   }),
