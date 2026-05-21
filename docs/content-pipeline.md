@@ -152,7 +152,9 @@ Run by `pnpm --filter @spcx/content validate` and as part of
 refresh-manifest` and re-verify all content. This catches the
     "Kros pulled an amended S-1" case.
 11. **English required everywhere.** Every node's `text.en` is
-    non-empty. (Zod enforces this at the type level too.)
+    non-empty. Owned by the validator (not the Zod schema) so the
+    error surfaces with rule 11 instead of being collapsed into a
+    generic rule-1 schema error.
 12. **Chinese translation key present.** In Phase 4 only, every node
     must have a `text.zh`. In Phase 1, missing `zh` is allowed; empty
     string is allowed.
@@ -226,7 +228,10 @@ A non-verbatim prose block (first-person voice edit):
 (The exact wording above is illustrative — confirm against the actual
 source lines before committing.)
 
-A risk node (Stage 7 highlighted disclosure):
+A risk node (Stage 7 highlighted disclosure). Note: `highlighted-disclosure`
+implies `verbatim: true` (validator rule 7), so this example reproduces
+the source line exactly. The literal text here is a placeholder — use the
+actual l.3208 wording when extracting:
 
 ```ts
 {
@@ -234,10 +239,9 @@ A risk node (Stage 7 highlighted disclosure):
   stage: 7,
   kind: 'risk',
   text: {
-    en: 'We do not maintain key person life insurance on Mr. Musk.',
+    en: '...exact wording from sources/...:3208 goes here...',
   },
-  verbatim: false,
-  originalText: '...exact wording from l.3208 here...',
+  verbatim: true,
   source: {
     file: 'sources/20260520_SpaceX_S-1_SEC-Filing.md',
     lineStart: 3208,
@@ -267,7 +271,10 @@ Expect failures: amended S-1s often shift line numbers. Walk through
 each error, locate the new line range in the updated file, and update
 the affected nodes. Then re-run validate until clean.
 
-If the upstream Dropbox file changes but the in-repo file is older, the
-SHA-256 check produces a warning but does not fail. Fail-on-mismatch
-is reserved for the in-repo file vs. the in-repo manifest pair, so the
-build is reproducible.
+The validator only ever compares the in-repo snapshot at
+`sources/20260520_SpaceX_S-1_SEC-Filing.md` against the in-repo manifest
+in `packages/content/src/manifest.ts`. A mismatch is a build error (rule
+10). The upstream Dropbox copy is not consulted at build time, so it
+cannot affect CI. If you've replaced the snapshot, run
+`pnpm --filter @spcx/content refresh-manifest` to bring the manifest
+back in sync with the new file, then re-run validate.

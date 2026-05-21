@@ -78,10 +78,12 @@ content layer hashes the source file).
   HTML.
 - **Audio off by default.** ElevenLabs-generated only, all original,
   committed to repo under `apps/web/public/audio/`. See PLAN.md §7.
-- **Multilingual: English first, Chinese stub now.** Proper nouns stay
-  in English in Chinese locale. Verbatim quotes keep English original +
-  add Chinese beneath. Build fails if any English key lacks at least an
-  empty Chinese entry in the content layer.
+- **Multilingual: English first, Chinese in Phase 4.** Proper nouns stay
+  in English in the Chinese locale. Verbatim quotes keep the English
+  original + add Chinese beneath. In Phase 1 the validator only requires
+  `text.en`; `text.zh` is allowed to be missing or empty. In Phase 4 the
+  validator's rule 12 flips on and the build fails if any node lacks a
+  `text.zh` key.
 
 ## 4. Phase plan (see `docs/phases.md` for status)
 
@@ -168,8 +170,10 @@ pnpm format                 # prettier + autocorrect-node
      `source.lineStart..lineEnd` actually exists.
   3. For `verbatim: true` nodes, checks `text.en` matches the source
      lines (whitespace-normalized).
-  4. Recomputes the SHA-256 of the source file and warns if it drifts
-     from the manifest.
+  4. Recomputes the SHA-256 of the source file and fails the build
+     (rule 10) if it drifts from the manifest. Run
+     `pnpm --filter @spcx/content refresh-manifest` to bring the
+     manifest back in sync after replacing the snapshot.
   5. Fails the build on any error.
 - Add a new node by editing the relevant `packages/content/src/stages/stageN.ts`
   file, then running `pnpm --filter @spcx/content validate`.
