@@ -1,10 +1,13 @@
 import type { ReactNode } from "react";
 import { byStage, glossary } from "@spcx/content";
 
-import { MissionBriefing } from "../components/Stage0/MissionBriefing";
 import { Algorithm } from "../components/Stage4/Algorithm";
 import { AnomalyLog } from "../components/Stage7/AnomalyLog";
+import { ColdOpen } from "../components/Stage1/ColdOpen";
 import { EndCredits } from "../components/Stage10/EndCredits";
+import { Horizon } from "../components/Stage9/Horizon";
+import { MissionBriefing } from "../components/Stage0/MissionBriefing";
+import { Roadmap } from "../components/Stage5/Roadmap";
 import { StagePlaceholder } from "../components/StagePlaceholder";
 import { TheNumbers } from "../components/Stage6/TheNumbers";
 import { ThreePillars } from "../components/Stage3/ThreePillars";
@@ -25,12 +28,15 @@ export default function Home() {
   }
 
   const stageRenderers: Record<number, ReactNode> = {
+    1: <ColdOpen nodes={byStage(1)} />,
     2: <WhoWeAre nodes={byStage(2)} />,
     3: <ThreePillars nodes={byStage(3)} />,
     4: <Algorithm nodes={byStage(4)} />,
+    5: <Roadmap nodes={byStage(5)} />,
     6: <TheNumbers nodes={byStage(6)} />,
     7: <AnomalyLog nodes={byStage(7)} />,
     8: <WhoSteers nodes={byStage(8)} />,
+    9: <Horizon nodes={byStage(9)} />,
   };
 
   return (
