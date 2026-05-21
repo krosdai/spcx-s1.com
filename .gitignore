@@ -1,12 +1,17 @@
 # Dependencies
 node_modules
 **/node_modules
+.pnpm-store
 
 # Build outputs
 artifacts
 build
 coverage
 dist
+out
+.next
+.turbo
+.wrangler
 *.tsbuildinfo
 
 # Logs

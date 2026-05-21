@@ -1,60 +1,92 @@
-# TypeScript Scaffold
+# spcx-s1.com — SpaceX S-1 Interactive
 
-A minimal bootstrap scaffold for TypeScript projects.
+An interactive, sci-fi, first-person visualization of SpaceX's May 2026
+Form S-1, written as a launch sequence for a general audience.
 
-This repository is intentionally small. It provides the shared project hygiene that most
-TypeScript repositories need before application code exists: package manager pinning, strict
-TypeScript defaults, formatting, linting, staged-file checks, and editor/devcontainer hints.
+> Status: Phase 1 (skeleton + content extraction). Not yet deployed.
 
-## What Is Included
+## What this is
 
-- PNPM workspace setup
-- Strict `tsconfig.json` defaults
-- Reusable ESLint flat config for TypeScript
-- Prettier formatting config
-- AutoCorrect text cleanup
-- Husky pre-commit and pre-push hooks
-- lint-staged checks that run local project binaries
-- Basic `.env.example`, `.gitignore`, VS Code, and devcontainer files
+A single-page, scroll-driven site that walks a non-finance reader through
+SpaceX's 200-page IPO prospectus from cover to glossary. Eleven stages
+flow from a mission briefing modal through a cold open, the company's
+history, its segments and business model, its roadmap, its numbers, its
+risks, its governance, its long-term horizon, and finally end credits
+with the full glossary and forward-looking statements caveat.
 
-## What Is Not Included
+Every line of body copy on the site traces back to a specific line range
+in the source SEC filing. A source toggle in the UI reveals the line
+references next to every block. No editorial commentary, opinion, or
+third-party analysis is added.
 
-- No app framework
-- No build tool
-- No test runner
-- No runtime entrypoint
-- No generated source tree
+## Disclaimer
 
-Add those only when a real project needs them.
+This site is a **fan-made, independent visualization**. It is **not
+affiliated with, endorsed by, or sponsored by SpaceX**. All content is
+sourced from a public SEC filing (Form S-1, dated 2026-05-20). Nothing
+on the site is investment advice.
 
-## Commands
+The S-1 itself is included in the repo at
+`sources/20260520_SpaceX_S-1_SEC-Filing.md`. The original filing is a
+public document available from the U.S. Securities and Exchange
+Commission.
 
-Install dependencies:
+## Stack
+
+- Next.js 15 (App Router, static export) + React 19 + TypeScript
+- Tailwind CSS v4
+- Zustand for global UI state
+- Zod for content schema validation at build time
+- Vitest for unit tests
+- pnpm workspace monorepo
+
+The full architecture is documented in
+[`docs/architecture.md`](./docs/architecture.md).
+
+## Quick start
+
+Requires Node 22.22.1+ and pnpm 11+.
 
 ```sh
 pnpm install
+pnpm --filter @spcx/content validate   # validate the S-1 content layer
+pnpm --filter web dev                  # start the Next.js dev server
 ```
 
-Format files:
+Production build:
 
 ```sh
-pnpm run format
+pnpm -r build                          # validates content, then builds web
+# static output: apps/web/out
 ```
 
-Run lint checks:
+Other useful scripts (see `package.json`):
 
 ```sh
-pnpm run lint
+pnpm lint                              # ESLint + Prettier --check
+pnpm lint:fix                          # autofix + format
+pnpm format                            # Prettier + autocorrect-node
+pnpm --filter @spcx/content test       # vitest
 ```
 
-Run lint fixes and formatting:
+## Repo layout
 
-```sh
-pnpm run lint:fix
+```
+apps/web/             Next.js app (static export)
+packages/content/     Typed content layer (@spcx/content)
+sources/              The SEC filing (single source of truth)
+docs/                 Architecture, content pipeline, stages, decisions
 ```
 
-## Usage
+## For AI agents
 
-Start from this scaffold when you want a clean TypeScript repository foundation without
-choosing an application framework up front. Keep the base small, add project-specific tools
-deliberately, and prefer extending the existing config over replacing it.
+If you are an AI agent working in this repo, start with
+[`AGENTS.md`](./AGENTS.md). It is the canonical context for all
+coding agents (Claude Code, Codex, Cursor, Copilot, etc.) and links to
+the deeper docs in `docs/`. Claude Code is pointed there via
+[`CLAUDE.md`](./CLAUDE.md), which also carries Claude-specific tips
+(notably: how to delegate substantial coding work to Codex).
+
+## License
+
+MIT. See [`LICENSE`](./LICENSE).

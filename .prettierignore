@@ -2,11 +2,16 @@
 node_modules
 **/node_modules
 pnpm-lock.yaml
+.pnpm-store
 
 # Build outputs
 dist
 build
 coverage
+out
+.next
+.turbo
+.wrangler
 *.tsbuildinfo
 
 # Logs
@@ -22,3 +27,6 @@ coverage
 
 # Local config files
 *.local.*
+
+# Source-of-truth snapshot: do NOT reformat the SEC filing.
+sources/
