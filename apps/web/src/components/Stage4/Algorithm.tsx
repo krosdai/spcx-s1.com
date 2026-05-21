@@ -35,7 +35,9 @@ export const Algorithm = ({ nodes }: AlgorithmProps) => {
                   <span className="font-telemetry text-xl tabular-nums text-accent-teal">
                     {number}
                   </span>
-                  <p className="text-base leading-7 text-body-white">{item.body}</p>
+                  <p className="text-base leading-7 text-body-white">
+                    {item.title ? `${item.title}. ${item.body}` : item.body}
+                  </p>
                 </li>
               );
             })}

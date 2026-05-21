@@ -22,11 +22,10 @@ export const Kpi = ({ node }: KpiProps) => {
     () => (rawValue !== undefined ? parseNumericValue(rawValue) : null),
     [rawValue],
   );
-  const [display, setDisplay] = useState<string>(() => {
-    if (!meta) return "";
-    if (reducedMotion || !parsed) return String(meta.value);
-    return formatNumericValue(0, parsed);
-  });
+  // SSR and no-JS readers see the verbatim value; clients with motion
+  // briefly reset to 0 inside the IntersectionObserver callback before
+  // counting up. Static export's initial paint always carries truth.
+  const [display, setDisplay] = useState<string>(() => (meta ? String(meta.value) : ""));
 
   useEffect(() => {
     if (!parsed || rawValue === undefined) return;
@@ -47,6 +46,7 @@ export const Kpi = ({ node }: KpiProps) => {
     let started = false;
 
     const run = () => {
+      setDisplay(formatNumericValue(0, parsed));
       const start = performance.now();
       const tick = (now: number) => {
         const progress = Math.min(1, (now - start) / COUNT_DURATION_MS);

@@ -27,9 +27,11 @@ const buildPillar = (
   idPrefix: string,
 ): Pick<Pillar, "summary" | "detail" | "extras"> => {
   const pillarNodes = nodes.filter((node) => node.id.startsWith(`${idPrefix}.`));
-  const summary = pillarNodes.find(
-    (node) => node.id.endsWith(".summary") || node.id.endsWith(".vehicles"),
-  );
+  // The cards-grid lives on the bullet list — pick the first `kind: 'list'`
+  // node. Space ships a separate `stage3.space.summary` prose intro
+  // that would have matched a name-based predicate and pushed the
+  // actual `stage3.space.vehicles` list into `extras`.
+  const summary = pillarNodes.find((node) => node.kind === "list");
   const detail = pillarNodes.find((node) => node.id.endsWith(".business-detail"));
   const extras = pillarNodes.filter((node) => node !== summary && node !== detail);
   return { summary, detail, extras };
