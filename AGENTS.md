@@ -248,18 +248,39 @@ Captured in detail in `docs/decisions.md`. Quick list:
 
 ## 12. PR review etiquette
 
-While a pull request is open, keep watching for new code review
-comments and process them autonomously. For each inline comment:
+While a pull request is open, keep watching for new activity and
+process it autonomously. That includes:
+
+- **CI status** — GitHub Actions checks, Cloudflare Pages preview
+  build, code-review reusable workflow. If a check fails, treat it
+  like a reviewer comment and act on it.
+- **Code-review bots** — CodeRabbit, Greptile, the Codex bot, etc.
+  and any inline comments they leave.
+- **Human reviewers** — top-level review comments and inline
+  comments.
+
+For each inline comment:
 
 1. Decide whether it flags a real bug, a stylistic preference, a
    misread of the code, or a duplicate of a thread already addressed.
 2. If it's a real bug, fix it — preferably in a focused commit that
    addresses just that thread or a tight batch of related threads.
-3. Reply inline. Cite the commit SHA that resolves it, or explain
-   concisely why no change is needed (false positive, intentional
-   design, out of scope for the current phase).
-4. Resolve the thread (`gh api graphql` → `resolveReviewThread`, or
-   the equivalent for whatever host the PR lives on).
+3. **Reply inline to every comment, including the ones you don't
+   fix.** Cite the commit SHA that resolves it, or explain concisely
+   why no change is needed (false positive, intentional design, out
+   of scope for the current phase). Silent dismissals are not
+   acceptable — every thread gets an answer.
+4. Resolve the thread. Two equivalent paths:
+   - `gh api graphql` → `resolveReviewThread`, or
+   - Drive Chrome via the Chrome MCP (see §13), open the PR page,
+     and click the "Resolve conversation" button. Useful when
+     GraphQL coverage is patchy or a bot's threads aren't surfaced
+     by `gh`.
+5. Before declaring the PR ready, **open the PR page in Chrome** and
+   visually confirm: every thread shows as resolved, every CI check
+   is green, and the PR description checklist matches reality. Don't
+   trust the API listing alone — GitHub's UI is the source of truth
+   reviewers see.
 
 Keep polling until the PR is merged or has gone quiet for a reasonable
 interval — roughly ten minutes with no new reviewer or bot activity
@@ -270,5 +291,36 @@ do most of the work without bouncing decisions back to Kros. Only stop
 and ask when it's genuinely his call to make — architecture pivot,
 scope expansion, an account or billing action, or an ambiguity in the
 S-1 that can't be resolved from the source itself.
+
+## 13. Browser verification (Phase 2+)
+
+Phase 2 introduces real UI stages. For any change that touches what
+the user sees — a new stage, a visual tweak, a layout fix, a motion
+adjustment — **verify in a real browser before reporting the work as
+done.** Type checking and unit tests verify code correctness, not
+feature behavior.
+
+Drive Kros's actual Chrome via the Chrome MCP (tools named
+`mcp__Claude_in_Chrome__*`; load via `ToolSearch` if deferred). Do
+this proactively, without waiting to be asked:
+
+1. Start the dev server: `pnpm --filter web dev`.
+2. Navigate Chrome to the local URL (typically
+   `http://localhost:3000`).
+3. Walk the affected stages and the obvious edge cases — keyboard
+   navigation, `prefers-reduced-motion: reduce`, narrow viewports,
+   the persistent UI shell.
+4. Read the console messages and network requests. Take screenshots
+   of meaningful states so Kros can see what you saw.
+5. Watch for regressions in other stages, not just the one you
+   changed.
+
+If you genuinely can't drive Chrome (extension not connected,
+sandboxed environment, dev server won't start), say so explicitly
+rather than claiming success. Don't fall back to "looks right in the
+diff" — for UI work, that's not verification.
+
+The same Chrome MCP is the fallback path for resolving PR threads —
+see §12 step 4.
 
 End of agent context.
