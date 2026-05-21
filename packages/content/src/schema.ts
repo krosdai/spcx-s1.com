@@ -99,20 +99,20 @@ export const ContentNode = ContentNodeBase.superRefine((node, ctx) => {
   const idStageMatch = /^stage(\d+)\./.exec(node.id);
   if (idStageMatch && Number(idStageMatch[1]) !== node.stage) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: "custom",
       path: ["stage"],
       message: `stage ${String(node.stage)} disagrees with id prefix '${idStageMatch[0]}' — keep \`stage\` and the id's \`stageN.\` prefix in sync`,
     });
   }
   if (node.kind === "risk" && !node.risk) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: "custom",
       message: "risk nodes must include `risk` metadata",
     });
   }
   if (node.kind === "glossary" && !node.glossary) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: "custom",
       message: "glossary nodes must include `glossary` metadata",
     });
   }
