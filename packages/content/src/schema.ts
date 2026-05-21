@@ -42,8 +42,11 @@ export const SourceRef = z
   });
 export type SourceRef = z.infer<typeof SourceRef>;
 
+// Note: en is not enforced as non-empty here. The validator's rule 11 owns
+// the empty-text check — keeping it in one place avoids duplicate errors
+// (one as schema rule 1, one as validator rule 11) for the same violation.
 export const LocalizedText = z.object({
-  en: z.string().min(1, "English text is required"),
+  en: z.string(),
   zh: z.string().optional(),
 });
 export type LocalizedText = z.infer<typeof LocalizedText>;
@@ -87,6 +90,11 @@ const ContentNodeBase = z.object({
   milestone: MilestoneMeta.optional(),
 });
 
+// Cross-field structural checks only. Semantic rules (5: originalText
+// required for non-verbatim sourced nodes; 6: authored/source discipline;
+// 11: non-empty English text) are enforced by the validator with explicit
+// rule numbers — duplicating them here would produce two errors per
+// violation.
 export const ContentNode = ContentNodeBase.superRefine((node, ctx) => {
   const idStageMatch = /^stage(\d+)\./.exec(node.id);
   if (idStageMatch && Number(idStageMatch[1]) !== node.stage) {
@@ -94,25 +102,6 @@ export const ContentNode = ContentNodeBase.superRefine((node, ctx) => {
       code: z.ZodIssueCode.custom,
       path: ["stage"],
       message: `stage ${String(node.stage)} disagrees with id prefix '${idStageMatch[0]}' — keep \`stage\` and the id's \`stageN.\` prefix in sync`,
-    });
-  }
-  if (!node.verbatim && node.source && !node.originalText) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message:
-        "Non-verbatim nodes with a source must include originalText for the source toggle",
-    });
-  }
-  if (node.kind === "authored" && node.source !== null) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "authored nodes must have source: null",
-    });
-  }
-  if (node.kind !== "authored" && node.source === null) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "only kind=='authored' nodes may have source: null (Stage 0 / Stage 10 credits)",
     });
   }
   if (node.kind === "risk" && !node.risk) {

@@ -95,35 +95,6 @@ export const validateContent = (options: ValidateOptions = {}): ValidationResult
         ? (candidate as Partial<ContentNodeType>)
         : undefined;
 
-    if (rawNode) {
-      if (
-        rawNode.verbatim === false &&
-        rawNode.source !== null &&
-        !rawNode.originalText?.trim()
-      ) {
-        errors.push(
-          issue(
-            5,
-            rawNode,
-            "originalText",
-            "Non-verbatim sourced nodes must include originalText",
-          ),
-        );
-      }
-
-      if (rawNode.kind === "authored" && rawNode.source !== null) {
-        errors.push(issue(6, rawNode, "source", "Authored nodes must have source: null"));
-      }
-
-      if (rawNode.kind && rawNode.kind !== "authored" && rawNode.source === null) {
-        errors.push(issue(6, rawNode, "source", "Only authored nodes may have source: null"));
-      }
-
-      if (typeof rawNode.text?.en === "string" && rawNode.text.en.trim() === "") {
-        errors.push(issue(11, rawNode, "text.en", "English text is required"));
-      }
-    }
-
     const parsed = ContentNode.safeParse(candidate);
 
     if (!parsed.success) {

@@ -6,7 +6,10 @@ allowBuilds:
   esbuild: true
   "@tailwindcss/oxide": true
   sharp: true
-  workerd: set this to true or false
+  # workerd is not used by the static export build pipeline (we only run
+  # `wrangler pages deploy` in CI via npx). Disable until/unless we add
+  # local `wrangler dev` workflows.
+  workerd: false
 
 onlyBuiltDependencies:
   - esbuild
