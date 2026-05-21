@@ -246,4 +246,29 @@ Captured in detail in `docs/decisions.md`. Quick list:
   file, or when any GitHub / Cloudflare / domain account prompts need
   Kros's manual action.
 
+## 12. PR review etiquette
+
+While a pull request is open, keep watching for new code review
+comments and process them autonomously. For each inline comment:
+
+1. Decide whether it flags a real bug, a stylistic preference, a
+   misread of the code, or a duplicate of a thread already addressed.
+2. If it's a real bug, fix it — preferably in a focused commit that
+   addresses just that thread or a tight batch of related threads.
+3. Reply inline. Cite the commit SHA that resolves it, or explain
+   concisely why no change is needed (false positive, intentional
+   design, out of scope for the current phase).
+4. Resolve the thread (`gh api graphql` → `resolveReviewThread`, or
+   the equivalent for whatever host the PR lives on).
+
+Keep polling until the PR is merged or has gone quiet for a reasonable
+interval — roughly ten minutes with no new reviewer or bot activity
+after the last push.
+
+The goal: make the best call you can with the context available, and
+do most of the work without bouncing decisions back to Kros. Only stop
+and ask when it's genuinely his call to make — architecture pivot,
+scope expansion, an account or billing action, or an ambiguity in the
+S-1 that can't be resolved from the source itself.
+
 End of agent context.
