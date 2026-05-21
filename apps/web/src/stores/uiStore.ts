@@ -80,13 +80,16 @@ export const useUIStore = create<UIState>()(
       }),
       onRehydrateStorage: () => (state) => {
         if (!state) return;
-        state.hasHydrated = true;
-        // First-time visitor (no persisted dismissal) → show the modal
-        // now that we've safely hydrated. Returning dismissed visitor
-        // sees nothing.
-        if (!state.modalDismissed) {
-          state.modalOpen = true;
-        }
+        // Important: mutating the rehydrated `state` object directly does
+        // not publish to subscribers — Zustand's `set` already fired. Call
+        // `setState` explicitly so React components observing `hasHydrated`
+        // and `modalOpen` re-render. First-time visitor (no persisted
+        // dismissal) → show the modal now that we've safely hydrated;
+        // returning dismissed visitor → modal stays closed.
+        useUIStore.setState({
+          hasHydrated: true,
+          modalOpen: !state.modalDismissed,
+        });
       },
     },
   ),
