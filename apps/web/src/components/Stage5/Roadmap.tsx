@@ -2,7 +2,7 @@
 
 import type { ContentNode } from "@spcx/content";
 
-import { useLocale } from "../../hooks/useLocalized";
+import { useLocale, useUiString } from "../../hooks/useLocalized";
 import { dualText, primaryText } from "../../lib/localized";
 import { cleanProse } from "../../lib/textHelpers";
 import { parseGroupedList } from "../../lib/groupedList";
@@ -22,6 +22,7 @@ const GROUP_ACCENT: Record<string, string> = {
 
 export const Roadmap = ({ nodes }: RoadmapProps) => {
   const locale = useLocale();
+  const title = useUiString("stage.title.5");
   const whyNow = nodes.find((node) => node.id === "stage5.roadmap.why-now");
   const growthSummary = nodes.find((node) => node.id === "stage5.roadmap.growth-summary");
   const growthDetail = nodes.find((node) => node.id === "stage5.roadmap.growth-detail");
@@ -53,7 +54,7 @@ export const Roadmap = ({ nodes }: RoadmapProps) => {
           id="stage-5-title"
           className="mt-4 text-4xl font-semibold leading-tight sm:text-5xl"
         >
-          The Roadmap
+          {title}
         </h2>
         <div className="mt-12 space-y-16">
           {whyNow && whyNowDual ? (
