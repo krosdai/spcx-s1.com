@@ -1,5 +1,9 @@
+"use client";
+
 import type { ContentNode, RiskCategory } from "@spcx/content";
 
+import { useLocale } from "../../hooks/useLocalized";
+import { dualText } from "../../lib/localized";
 import { cleanProse } from "../../lib/textHelpers";
 import { SourceRef } from "../SourceRef";
 import { StageSection } from "../StageSection";
@@ -49,6 +53,8 @@ const TITLE_OVERRIDES: Record<string, string> = {
 const RiskCard = ({ node, dense = false }: { node: ContentNode; dense?: boolean }) => {
   const risk = node.risk;
   const title = TITLE_OVERRIDES[node.id] ?? node.id;
+  const locale = useLocale();
+  const { primary, secondary } = dualText(node, locale);
 
   return (
     <details className="border border-white/10 bg-panel-black/60">
@@ -76,8 +82,13 @@ const RiskCard = ({ node, dense = false }: { node: ContentNode; dense?: boolean 
       </summary>
       <div className="border-t border-white/10 px-5 py-4">
         <pre className="whitespace-pre-wrap font-body text-sm leading-7 text-muted-white">
-          {cleanProse(node.text.en)}
+          {cleanProse(primary)}
         </pre>
+        {secondary ? (
+          <pre className="mt-4 whitespace-pre-wrap border-l border-white/15 pl-3 font-body text-sm leading-7 text-muted-white/80">
+            {cleanProse(secondary)}
+          </pre>
+        ) : null}
         <SourceRef source={node.source} />
       </div>
     </details>
@@ -85,12 +96,15 @@ const RiskCard = ({ node, dense = false }: { node: ContentNode; dense?: boolean 
 };
 
 export const AnomalyLog = ({ nodes }: AnomalyLogProps) => {
+  const locale = useLocale();
   const summary = nodes.find((node) => node.id === "stage7.summary.principal-risk-factors");
   const highlights = nodes.filter((node) => node.tags?.includes("highlighted-disclosure"));
   const taxonomy = nodes.filter((node) => node.id.startsWith("stage7.taxonomy."));
   const caveat = nodes.find(
     (node) => node.id === "stage7.caveat.commercial-viability-crosslink",
   );
+  const summaryDual = summary ? dualText(summary, locale) : null;
+  const caveatDual = caveat ? dualText(caveat, locale) : null;
 
   const byCategory = new Map<RiskCategory, ContentNode[]>();
   for (const node of taxonomy) {
@@ -102,9 +116,9 @@ export const AnomalyLog = ({ nodes }: AnomalyLogProps) => {
   }
 
   return (
-    <StageSection id={7} title="The Anomaly Log">
+    <StageSection id={7}>
       <div className="space-y-16">
-        {summary ? (
+        {summary && summaryDual ? (
           <section aria-labelledby="stage-7-summary-title">
             <h3
               id="stage-7-summary-title"
@@ -118,8 +132,13 @@ export const AnomalyLog = ({ nodes }: AnomalyLogProps) => {
               </summary>
               <div className="border-t border-white/10 px-5 py-4">
                 <pre className="whitespace-pre-wrap font-body text-sm leading-7 text-muted-white">
-                  {cleanProse(summary.text.en)}
+                  {cleanProse(summaryDual.primary)}
                 </pre>
+                {summaryDual.secondary ? (
+                  <pre className="mt-4 whitespace-pre-wrap border-l border-white/15 pl-3 font-body text-sm leading-7 text-muted-white/80">
+                    {cleanProse(summaryDual.secondary)}
+                  </pre>
+                ) : null}
                 <SourceRef source={summary.source} />
               </div>
             </details>
@@ -171,7 +190,7 @@ export const AnomalyLog = ({ nodes }: AnomalyLogProps) => {
           </div>
         </section>
 
-        {caveat ? (
+        {caveat && caveatDual ? (
           <section
             aria-labelledby="stage-7-caveat-title"
             className="border-l-2 border-accent-amber bg-panel-black/40 p-6"
@@ -186,8 +205,13 @@ export const AnomalyLog = ({ nodes }: AnomalyLogProps) => {
               Commercial viability of new markets is uncertain
             </h3>
             <pre className="mt-5 whitespace-pre-wrap font-body text-sm leading-7 text-muted-white">
-              {cleanProse(caveat.text.en)}
+              {cleanProse(caveatDual.primary)}
             </pre>
+            {caveatDual.secondary ? (
+              <pre className="mt-4 whitespace-pre-wrap border-l border-white/15 pl-3 font-body text-sm leading-7 text-muted-white/80">
+                {cleanProse(caveatDual.secondary)}
+              </pre>
+            ) : null}
             <SourceRef source={caveat.source} />
           </section>
         ) : null}

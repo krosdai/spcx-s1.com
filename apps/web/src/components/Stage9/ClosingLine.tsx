@@ -8,6 +8,7 @@ import { SourceRef } from "../SourceRef";
 
 interface ClosingLineProps {
   text: string;
+  secondary?: string;
   source: SourceRefType | null;
 }
 
@@ -15,7 +16,7 @@ const TYPE_INTERVAL_MS = 36;
 const TYPE_STEP = 1;
 const TYPE_LEAD_DELAY_MS = 180;
 
-export const ClosingLine = ({ text, source }: ClosingLineProps) => {
+export const ClosingLine = ({ text, secondary, source }: ClosingLineProps) => {
   const reducedMotion = useReducedMotion();
   const containerRef = useRef<HTMLDivElement>(null);
   const [typed, setTyped] = useState(text);
@@ -80,6 +81,14 @@ export const ClosingLine = ({ text, source }: ClosingLineProps) => {
       <p className="mt-6 font-display text-3xl font-light leading-[1.35] text-body-white sm:text-4xl md:text-5xl">
         {typed}
       </p>
+      {secondary ? (
+        <p
+          lang="zh"
+          className="mt-6 max-w-[36rem] border-l border-white/15 pl-4 font-display text-lg font-light leading-[1.6] text-muted-white/80 sm:text-xl md:text-2xl"
+        >
+          {secondary}
+        </p>
+      ) : null}
       <div className="mt-8">
         <SourceRef source={source} />
       </div>

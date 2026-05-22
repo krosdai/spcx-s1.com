@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import type { ContentNode } from "@spcx/content";
 
+import { useLocale } from "../../hooks/useLocalized";
+import { dualText } from "../../lib/localized";
 import { SourceRef } from "../SourceRef";
 
 interface EndCreditsProps {
@@ -12,8 +14,12 @@ interface EndCreditsProps {
 }
 
 export const EndCredits = ({ authored, caveat, glossary }: EndCreditsProps) => {
+  const locale = useLocale();
   const [query, setQuery] = useState("");
   const normalizedQuery = query.trim().toLowerCase();
+  // Glossary search matches against the term, the English definition,
+  // and the Chinese definition when present, so a reader searching in
+  // either language can find the entry.
   const filteredGlossary = useMemo(() => {
     if (!normalizedQuery) {
       return glossary;
@@ -21,11 +27,17 @@ export const EndCredits = ({ authored, caveat, glossary }: EndCreditsProps) => {
 
     return glossary.filter((node) => {
       const term = node.glossary?.term.toLowerCase() ?? "";
-      const definition = node.text.en.toLowerCase();
+      const en = node.text.en.toLowerCase();
+      const zh = node.text.zh?.toLowerCase() ?? "";
 
-      return term.includes(normalizedQuery) || definition.includes(normalizedQuery);
+      return (
+        term.includes(normalizedQuery) ||
+        en.includes(normalizedQuery) ||
+        zh.includes(normalizedQuery)
+      );
     });
   }, [glossary, normalizedQuery]);
+  const caveatDual = dualText(caveat, locale);
 
   return (
     <section id="stage-10" aria-labelledby="stage-10-title" className="min-h-screen px-6 py-28">
@@ -38,34 +50,51 @@ export const EndCredits = ({ authored, caveat, glossary }: EndCreditsProps) => {
             End Credits
           </h2>
           <div className="mt-8 space-y-4 text-muted-white">
-            {authored.map((node) => (
-              <p key={node.id}>
-                {node.tags?.includes("github") ? (
-                  <a
-                    className="text-body-white underline decoration-accent-teal underline-offset-4"
-                    href="https://github.com/xdanger/spcx-s1.com"
-                  >
-                    {node.text.en}
-                  </a>
-                ) : node.tags?.includes("contact") ? (
-                  <a
-                    className="text-body-white underline decoration-accent-teal underline-offset-4"
-                    href="mailto:y@dai.co"
-                  >
-                    {node.text.en}
-                  </a>
-                ) : (
-                  node.text.en
-                )}
-              </p>
-            ))}
+            {authored.map((node) => {
+              const { primary, secondary } = dualText(node, locale);
+              const renderLink = node.tags?.includes("github") ? (
+                <a
+                  className="text-body-white underline decoration-accent-teal underline-offset-4"
+                  href="https://github.com/xdanger/spcx-s1.com"
+                >
+                  {primary}
+                </a>
+              ) : node.tags?.includes("contact") ? (
+                <a
+                  className="text-body-white underline decoration-accent-teal underline-offset-4"
+                  href="mailto:y@dai.co"
+                >
+                  {primary}
+                </a>
+              ) : (
+                primary
+              );
+              return (
+                <p key={node.id}>
+                  {renderLink}
+                  {secondary ? (
+                    <span lang="zh" className="mt-1 block text-muted-white/80">
+                      {secondary}
+                    </span>
+                  ) : null}
+                </p>
+              );
+            })}
           </div>
 
           <article className="mt-12 border-l border-accent-amber pl-5">
             <h3 className="text-xl font-semibold">Forward-Looking Statements</h3>
             <pre className="mt-4 whitespace-pre-wrap font-body text-sm leading-7 text-muted-white">
-              {caveat.text.en}
+              {caveatDual.primary}
             </pre>
+            {caveatDual.secondary ? (
+              <pre
+                lang="zh"
+                className="mt-4 whitespace-pre-wrap border-l border-white/15 pl-3 font-body text-sm leading-7 text-muted-white/80"
+              >
+                {caveatDual.secondary}
+              </pre>
+            ) : null}
             <SourceRef source={caveat.source} />
           </article>
         </div>
@@ -88,15 +117,24 @@ export const EndCredits = ({ authored, caveat, glossary }: EndCreditsProps) => {
             autoComplete="off"
           />
           <div className="mt-6 max-h-[70vh] space-y-5 overflow-auto pr-2">
-            {filteredGlossary.map((node) => (
-              <article key={node.id} className="border-t border-white/15 pt-4">
-                <h3 className="text-lg font-semibold">{node.glossary?.term}</h3>
-                <p className="mt-2 whitespace-pre-wrap text-sm text-muted-white">
-                  {node.text.en}
-                </p>
-                <SourceRef source={node.source} />
-              </article>
-            ))}
+            {filteredGlossary.map((node) => {
+              const { primary, secondary } = dualText(node, locale);
+              return (
+                <article key={node.id} className="border-t border-white/15 pt-4">
+                  <h3 className="text-lg font-semibold">{node.glossary?.term}</h3>
+                  <p className="mt-2 whitespace-pre-wrap text-sm text-muted-white">{primary}</p>
+                  {secondary ? (
+                    <p
+                      lang="zh"
+                      className="mt-2 whitespace-pre-wrap border-l border-white/15 pl-3 text-sm text-muted-white/80"
+                    >
+                      {secondary}
+                    </p>
+                  ) : null}
+                  <SourceRef source={node.source} />
+                </article>
+              );
+            })}
           </div>
         </div>
       </div>

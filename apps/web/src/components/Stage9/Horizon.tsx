@@ -1,5 +1,9 @@
+"use client";
+
 import type { ContentNode } from "@spcx/content";
 
+import { useLocale } from "../../hooks/useLocalized";
+import { dualText, primaryText } from "../../lib/localized";
 import { cleanProse } from "../../lib/textHelpers";
 import { parseGroupedList } from "../../lib/groupedList";
 import { SourceRef } from "../SourceRef";
@@ -11,6 +15,7 @@ interface HorizonProps {
 }
 
 export const Horizon = ({ nodes }: HorizonProps) => {
+  const locale = useLocale();
   const kardashev = nodes.find((node) => node.id === "stage9.horizon.kardashev-framing");
   const futureSummary = nodes.find(
     (node) => node.id === "stage9.horizon.future-markets-summary",
@@ -20,7 +25,15 @@ export const Horizon = ({ nodes }: HorizonProps) => {
   const caveat = nodes.find((node) => node.id === "stage9.caveat.commercial-viability");
   const closing = nodes.find((node) => node.id === "stage9.horizon.closing-line");
 
-  const futureSummaryGroup = futureSummary ? parseGroupedList(futureSummary.text.en) : [];
+  const kardashevDual = kardashev ? dualText(kardashev, locale) : null;
+  const lunarDual = lunar ? dualText(lunar, locale) : null;
+  const futureDetailDual = futureDetail ? dualText(futureDetail, locale) : null;
+  const caveatDual = caveat ? dualText(caveat, locale) : null;
+  const closingDual = closing ? dualText(closing, locale) : null;
+
+  const futureSummaryGroup = futureSummary
+    ? parseGroupedList(primaryText(futureSummary, locale))
+    : [];
   const futureItems = futureSummaryGroup[0]?.items ?? [];
 
   return (
@@ -42,14 +55,22 @@ export const Horizon = ({ nodes }: HorizonProps) => {
         </h2>
 
         <div className="mt-12 space-y-16">
-          {kardashev ? (
+          {kardashev && kardashevDual ? (
             <article className="max-w-[68ch] space-y-4">
               <p className="font-telemetry text-[11px] uppercase tracking-[0.18em] text-accent-teal">
                 Why this matters now — Kardashev Type II framing
               </p>
               <pre className="whitespace-pre-wrap font-body text-base leading-7 text-body-white">
-                {cleanProse(kardashev.text.en)}
+                {cleanProse(kardashevDual.primary)}
               </pre>
+              {kardashevDual.secondary ? (
+                <pre
+                  lang="zh"
+                  className="whitespace-pre-wrap border-l border-white/15 pl-3 font-body text-sm leading-7 text-muted-white/80"
+                >
+                  {cleanProse(kardashevDual.secondary)}
+                </pre>
+              ) : null}
               <SourceRef source={kardashev.source} />
             </article>
           ) : null}
@@ -79,33 +100,49 @@ export const Horizon = ({ nodes }: HorizonProps) => {
             </section>
           ) : null}
 
-          {lunar ? (
+          {lunar && lunarDual ? (
             <article className="max-w-[68ch] space-y-4">
               <p className="font-telemetry text-[11px] uppercase tracking-[0.18em] text-accent-blue">
                 The lunar economy
               </p>
               <pre className="whitespace-pre-wrap font-body text-base leading-7 text-body-white">
-                {cleanProse(lunar.text.en)}
+                {cleanProse(lunarDual.primary)}
               </pre>
+              {lunarDual.secondary ? (
+                <pre
+                  lang="zh"
+                  className="whitespace-pre-wrap border-l border-white/15 pl-3 font-body text-sm leading-7 text-muted-white/80"
+                >
+                  {cleanProse(lunarDual.secondary)}
+                </pre>
+              ) : null}
               <SourceRef source={lunar.source} />
             </article>
           ) : null}
 
-          {futureDetail ? (
+          {futureDetail && futureDetailDual ? (
             <details className="border border-white/10 bg-panel-black/60 backdrop-blur-sm">
               <summary className="cursor-pointer px-5 py-4 font-telemetry text-xs uppercase tracking-[0.16em] text-body-white hover:text-accent-amber">
                 Read the full Future Markets section
               </summary>
               <div className="border-t border-white/10 px-5 py-5">
                 <pre className="whitespace-pre-wrap font-body text-sm leading-7 text-muted-white">
-                  {cleanProse(futureDetail.text.en)}
+                  {cleanProse(futureDetailDual.primary)}
                 </pre>
+                {futureDetailDual.secondary ? (
+                  <pre
+                    lang="zh"
+                    className="mt-4 whitespace-pre-wrap border-l border-white/15 pl-3 font-body text-sm leading-7 text-muted-white/80"
+                  >
+                    {cleanProse(futureDetailDual.secondary)}
+                  </pre>
+                ) : null}
                 <SourceRef source={futureDetail.source} />
               </div>
             </details>
           ) : null}
 
-          {caveat ? (
+          {caveat && caveatDual ? (
             <section
               aria-labelledby="stage-9-caveat-title"
               className="border-l-2 border-accent-amber bg-panel-black/60 p-6 backdrop-blur-sm"
@@ -120,15 +157,27 @@ export const Horizon = ({ nodes }: HorizonProps) => {
                 Timeline and commercial viability remain uncertain
               </h3>
               <pre className="mt-5 whitespace-pre-wrap font-body text-sm leading-7 text-muted-white">
-                {cleanProse(caveat.text.en)}
+                {cleanProse(caveatDual.primary)}
               </pre>
+              {caveatDual.secondary ? (
+                <pre
+                  lang="zh"
+                  className="mt-4 whitespace-pre-wrap border-l border-white/15 pl-3 font-body text-sm leading-7 text-muted-white/80"
+                >
+                  {cleanProse(caveatDual.secondary)}
+                </pre>
+              ) : null}
               <SourceRef source={caveat.source} />
             </section>
           ) : null}
 
-          {closing ? (
+          {closing && closingDual ? (
             <div className="py-16">
-              <ClosingLine text={closing.text.en.trim()} source={closing.source} />
+              <ClosingLine
+                text={closingDual.primary.trim()}
+                secondary={closingDual.secondary?.trim()}
+                source={closing.source}
+              />
             </div>
           ) : null}
         </div>
