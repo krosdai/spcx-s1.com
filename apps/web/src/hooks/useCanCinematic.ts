@@ -30,6 +30,14 @@ export const useCanCinematic = (): boolean => {
       return;
     }
 
+    // Embedded webviews and crawler-like runtimes can expose `window`
+    // without `matchMedia`. Fall back to the static path instead of
+    // throwing when the media-query API is missing.
+    if (typeof window.matchMedia !== "function") {
+      setCanRender(false);
+      return;
+    }
+
     const wide = window.matchMedia(MIN_CINEMATIC_WIDTH_QUERY);
     const update = () => {
       setCanRender(wide.matches && detectWebGL());

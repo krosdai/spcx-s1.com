@@ -34,17 +34,24 @@ export const ClosingLine = ({ text, source }: ClosingLineProps) => {
       return;
     }
 
+    // Lift timer + cancellation flag into the effect scope so the
+    // outer cleanup can stop the recursive typewriter chain if the
+    // component unmounts mid-type, or if `text` / `reducedMotion`
+    // change and the effect re-runs.
+    let timer: number | undefined;
+    let cancelled = false;
+
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (!entry.isIntersecting || startedRef.current) continue;
+          if (!entry.isIntersecting || startedRef.current || cancelled) continue;
           startedRef.current = true;
           observer.disconnect();
 
           setTyped("");
           let index = 0;
-          let timer: number | undefined;
           const tick = () => {
+            if (cancelled) return;
             index = Math.min(text.length, index + TYPE_STEP);
             setTyped(text.slice(0, index));
             if (index < text.length) {
@@ -52,10 +59,6 @@ export const ClosingLine = ({ text, source }: ClosingLineProps) => {
             }
           };
           timer = window.setTimeout(tick, TYPE_LEAD_DELAY_MS);
-
-          return () => {
-            if (timer !== undefined) window.clearTimeout(timer);
-          };
         }
       },
       { threshold: 0.45 },
@@ -63,6 +66,8 @@ export const ClosingLine = ({ text, source }: ClosingLineProps) => {
 
     observer.observe(el);
     return () => {
+      cancelled = true;
+      if (timer !== undefined) window.clearTimeout(timer);
       observer.disconnect();
     };
   }, [reducedMotion, text]);

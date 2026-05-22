@@ -46,19 +46,26 @@ export const ColdOpenInner = ({ body, attribution, source }: ColdOpenInnerProps)
       return;
     }
 
+    // Lift timer + cancellation flag into the effect scope so the
+    // outer cleanup can stop the recursive typewriter chain if the
+    // component unmounts mid-type, or if `body` / `cinematic` change
+    // and the effect re-runs.
+    let timer: number | undefined;
+    let cancelled = false;
+
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (!entry.isIntersecting || startedRef.current) continue;
+          if (!entry.isIntersecting || startedRef.current || cancelled) continue;
           startedRef.current = true;
           observer.disconnect();
 
           setTyped("");
           setTyping(true);
           let index = 0;
-          let timer: number | undefined;
 
           const tick = () => {
+            if (cancelled) return;
             index = Math.min(body.length, index + TYPE_STEP);
             setTyped(body.slice(0, index));
             if (index < body.length) {
@@ -69,10 +76,6 @@ export const ColdOpenInner = ({ body, attribution, source }: ColdOpenInnerProps)
           };
 
           timer = window.setTimeout(tick, TYPE_LEAD_DELAY_MS);
-
-          return () => {
-            if (timer !== undefined) window.clearTimeout(timer);
-          };
         }
       },
       { threshold: 0.32 },
@@ -80,6 +83,8 @@ export const ColdOpenInner = ({ body, attribution, source }: ColdOpenInnerProps)
 
     observer.observe(node);
     return () => {
+      cancelled = true;
+      if (timer !== undefined) window.clearTimeout(timer);
       observer.disconnect();
     };
   }, [body, cinematic]);
