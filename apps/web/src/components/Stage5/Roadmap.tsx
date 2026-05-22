@@ -1,5 +1,9 @@
+"use client";
+
 import type { ContentNode } from "@spcx/content";
 
+import { useLocale } from "../../hooks/useLocalized";
+import { dualText, primaryText } from "../../lib/localized";
 import { cleanProse } from "../../lib/textHelpers";
 import { parseGroupedList } from "../../lib/groupedList";
 import { SourceRef } from "../SourceRef";
@@ -17,14 +21,21 @@ const GROUP_ACCENT: Record<string, string> = {
 };
 
 export const Roadmap = ({ nodes }: RoadmapProps) => {
+  const locale = useLocale();
   const whyNow = nodes.find((node) => node.id === "stage5.roadmap.why-now");
   const growthSummary = nodes.find((node) => node.id === "stage5.roadmap.growth-summary");
   const growthDetail = nodes.find((node) => node.id === "stage5.roadmap.growth-detail");
   const futureMarkets = nodes.find((node) => node.id === "stage5.roadmap.future-markets");
   const caveat = nodes.find((node) => node.id === "stage5.caveat.commercial-viability");
 
-  const groups = growthSummary ? parseGroupedList(growthSummary.text.en) : [];
-  const futureMarketGroup = futureMarkets ? parseGroupedList(futureMarkets.text.en) : [];
+  const whyNowDual = whyNow ? dualText(whyNow, locale) : null;
+  const growthDetailDual = growthDetail ? dualText(growthDetail, locale) : null;
+  const caveatDual = caveat ? dualText(caveat, locale) : null;
+
+  const groups = growthSummary ? parseGroupedList(primaryText(growthSummary, locale)) : [];
+  const futureMarketGroup = futureMarkets
+    ? parseGroupedList(primaryText(futureMarkets, locale))
+    : [];
   const futureMarketItems = futureMarketGroup[0]?.items ?? [];
 
   return (
@@ -45,14 +56,22 @@ export const Roadmap = ({ nodes }: RoadmapProps) => {
           The Roadmap
         </h2>
         <div className="mt-12 space-y-16">
-          {whyNow ? (
+          {whyNow && whyNowDual ? (
             <article className="max-w-[68ch] space-y-4">
               <p className="font-telemetry text-[11px] uppercase tracking-[0.18em] text-accent-blue">
                 Why this matters now
               </p>
               <pre className="whitespace-pre-wrap font-body text-base leading-7 text-body-white">
-                {cleanProse(whyNow.text.en)}
+                {cleanProse(whyNowDual.primary)}
               </pre>
+              {whyNowDual.secondary ? (
+                <pre
+                  lang="zh"
+                  className="whitespace-pre-wrap border-l border-white/15 pl-3 font-body text-sm leading-7 text-muted-white/80"
+                >
+                  {cleanProse(whyNowDual.secondary)}
+                </pre>
+              ) : null}
               <SourceRef source={whyNow.source} />
             </article>
           ) : null}
@@ -124,21 +143,29 @@ export const Roadmap = ({ nodes }: RoadmapProps) => {
             </section>
           ) : null}
 
-          {growthDetail ? (
+          {growthDetail && growthDetailDual ? (
             <details className="border border-white/10 bg-panel-black/60 backdrop-blur-sm">
               <summary className="cursor-pointer px-5 py-4 font-telemetry text-xs uppercase tracking-[0.16em] text-body-white hover:text-accent-blue">
                 Read the full Business — Growth Strategies section
               </summary>
               <div className="border-t border-white/10 px-5 py-5">
                 <pre className="whitespace-pre-wrap font-body text-sm leading-7 text-muted-white">
-                  {cleanProse(growthDetail.text.en)}
+                  {cleanProse(growthDetailDual.primary)}
                 </pre>
+                {growthDetailDual.secondary ? (
+                  <pre
+                    lang="zh"
+                    className="mt-4 whitespace-pre-wrap border-l border-white/15 pl-3 font-body text-sm leading-7 text-muted-white/80"
+                  >
+                    {cleanProse(growthDetailDual.secondary)}
+                  </pre>
+                ) : null}
                 <SourceRef source={growthDetail.source} />
               </div>
             </details>
           ) : null}
 
-          {caveat ? (
+          {caveat && caveatDual ? (
             <section
               aria-labelledby="stage-5-caveat-title"
               className="border-l-2 border-accent-amber bg-panel-black/60 p-6 backdrop-blur-sm"
@@ -153,8 +180,16 @@ export const Roadmap = ({ nodes }: RoadmapProps) => {
                 These initiatives may not achieve commercial viability
               </h3>
               <pre className="mt-5 whitespace-pre-wrap font-body text-sm leading-7 text-muted-white">
-                {cleanProse(caveat.text.en)}
+                {cleanProse(caveatDual.primary)}
               </pre>
+              {caveatDual.secondary ? (
+                <pre
+                  lang="zh"
+                  className="mt-4 whitespace-pre-wrap border-l border-white/15 pl-3 font-body text-sm leading-7 text-muted-white/80"
+                >
+                  {cleanProse(caveatDual.secondary)}
+                </pre>
+              ) : null}
               <SourceRef source={caveat.source} />
             </section>
           ) : null}

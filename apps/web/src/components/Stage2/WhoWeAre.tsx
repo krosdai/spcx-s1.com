@@ -1,5 +1,9 @@
+"use client";
+
 import type { ContentNode } from "@spcx/content";
 
+import { useLocale } from "../../hooks/useLocalized";
+import { dualText } from "../../lib/localized";
 import { SourceRef } from "../SourceRef";
 import { StageSection } from "../StageSection";
 import { Kpi } from "./Kpi";
@@ -9,6 +13,7 @@ interface WhoWeAreProps {
 }
 
 export const WhoWeAre = ({ nodes }: WhoWeAreProps) => {
+  const locale = useLocale();
   const prose = nodes.filter((node) => node.kind === "prose");
   const kpis = nodes.filter((node) => node.kind === "kpi");
   const milestones = nodes
@@ -16,7 +21,7 @@ export const WhoWeAre = ({ nodes }: WhoWeAreProps) => {
     .sort((a, b) => (a.milestone?.year ?? 0) - (b.milestone?.year ?? 0));
 
   return (
-    <StageSection id={2} title="Who We Are">
+    <StageSection id={2}>
       <div className="space-y-20">
         <div
           className="grid gap-4 md:grid-cols-3"
@@ -31,14 +36,25 @@ export const WhoWeAre = ({ nodes }: WhoWeAreProps) => {
         </div>
 
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-          {prose.map((node) => (
-            <article key={node.id} className="space-y-4">
-              <p className="whitespace-pre-wrap font-body text-base leading-7 text-body-white">
-                {node.text.en}
-              </p>
-              <SourceRef source={node.source} />
-            </article>
-          ))}
+          {prose.map((node) => {
+            const { primary, secondary } = dualText(node, locale);
+            return (
+              <article key={node.id} className="space-y-4">
+                <p className="whitespace-pre-wrap font-body text-base leading-7 text-body-white">
+                  {primary}
+                </p>
+                {secondary ? (
+                  <p
+                    lang="zh"
+                    className="whitespace-pre-wrap border-l border-white/15 pl-3 font-body text-sm leading-7 text-muted-white/80"
+                  >
+                    {secondary}
+                  </p>
+                ) : null}
+                <SourceRef source={node.source} />
+              </article>
+            );
+          })}
         </div>
 
         <div>

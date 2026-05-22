@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react";
 import type { ContentNode } from "@spcx/content";
 
+import { useLocale, useUiString } from "../../hooks/useLocalized";
+import { dualText } from "../../lib/localized";
 import { useUIStore } from "../../stores/uiStore";
 
 interface MissionBriefingProps {
@@ -13,6 +15,9 @@ export const MissionBriefing = ({ nodes }: MissionBriefingProps) => {
   const open = useUIStore((state) => state.modalOpen);
   const hasHydrated = useUIStore((state) => state.hasHydrated);
   const dismiss = useUIStore((state) => state.dismissModal);
+  const locale = useLocale();
+  const title = useUiString("stage0.title");
+  const dismissLabel = useUiString("stage0.dismiss");
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -51,19 +56,27 @@ export const MissionBriefing = ({ nodes }: MissionBriefingProps) => {
           Stage 00
         </p>
         <h1 id="mission-briefing-title" className="mt-3 text-3xl font-semibold leading-tight">
-          Mission Briefing
+          {title}
         </h1>
         <div className="mt-6 space-y-4 text-sm text-muted-white sm:text-base">
-          {nodes.map((node) => (
-            <p key={node.id}>{node.text.en}</p>
-          ))}
+          {nodes.map((node) => {
+            const { primary, secondary } = dualText(node, locale);
+            return (
+              <p key={node.id}>
+                {primary}
+                {secondary ? (
+                  <span className="mt-1 block text-muted-white/80">{secondary}</span>
+                ) : null}
+              </p>
+            );
+          })}
         </div>
         <button
           type="button"
           onClick={dismiss}
           className="mt-8 border border-white/25 px-4 py-2 font-telemetry text-xs uppercase tracking-[0.14em] text-body-white hover:border-accent-teal"
         >
-          Begin
+          {dismissLabel}
         </button>
       </div>
     </dialog>

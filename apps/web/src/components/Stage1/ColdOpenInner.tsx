@@ -16,6 +16,8 @@ const Starfield = dynamic(
 interface ColdOpenInnerProps {
   body: string;
   attribution: string;
+  secondaryBody?: string;
+  secondaryAttribution?: string;
   source: SourceRefType | null;
 }
 
@@ -23,7 +25,13 @@ const TYPE_INTERVAL_MS = 24;
 const TYPE_STEP = 2;
 const TYPE_LEAD_DELAY_MS = 280;
 
-export const ColdOpenInner = ({ body, attribution, source }: ColdOpenInnerProps) => {
+export const ColdOpenInner = ({
+  body,
+  attribution,
+  secondaryBody,
+  secondaryAttribution,
+  source,
+}: ColdOpenInnerProps) => {
   const cinematic = useCanCinematic();
   const sectionInView = useSectionInView("stage-1");
   const sectionRef = useRef<HTMLElement>(null);
@@ -119,6 +127,18 @@ export const ColdOpenInner = ({ body, attribution, source }: ColdOpenInnerProps)
           <footer className="mt-10 font-telemetry text-sm uppercase tracking-[0.28em] text-muted-white">
             {attribution}
           </footer>
+          {secondaryBody ? (
+            <div className="mt-10 border-l border-white/15 pl-5 text-muted-white/80">
+              <p lang="zh" className="font-display text-lg font-light leading-[1.7] sm:text-xl">
+                <span className="whitespace-pre-wrap">{secondaryBody}</span>
+              </p>
+              {secondaryAttribution ? (
+                <footer className="mt-4 font-telemetry text-xs uppercase tracking-[0.24em]">
+                  {secondaryAttribution}
+                </footer>
+              ) : null}
+            </div>
+          ) : null}
         </blockquote>
         <div className="mt-8">
           <SourceRef source={source} />

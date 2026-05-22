@@ -1,5 +1,9 @@
+"use client";
+
 import type { ContentNode } from "@spcx/content";
 
+import { useLocale } from "../../hooks/useLocalized";
+import { dualText, primaryText } from "../../lib/localized";
 import { parseList } from "../../lib/textHelpers";
 import { SourceRef } from "../SourceRef";
 import { StageSection } from "../StageSection";
@@ -9,15 +13,17 @@ interface AlgorithmProps {
 }
 
 export const Algorithm = ({ nodes }: AlgorithmProps) => {
+  const locale = useLocale();
   const listNode = nodes.find(
     (node) => node.id === "stage4.algorithm.repeatable-business-model",
   );
   const quoteNode = nodes.find((node) => node.id === "stage4.algorithm.five-step");
 
-  const parsed = listNode ? parseList(listNode.text.en) : null;
+  const parsed = listNode ? parseList(primaryText(listNode, locale)) : null;
+  const quoteDual = quoteNode ? dualText(quoteNode, locale) : null;
 
   return (
-    <StageSection id={4} title="The Algorithm">
+    <StageSection id={4}>
       <div className="space-y-12">
         {parsed?.preamble ? (
           <p className="max-w-[68ch] text-base leading-7 text-muted-white">{parsed.preamble}</p>
@@ -46,7 +52,7 @@ export const Algorithm = ({ nodes }: AlgorithmProps) => {
 
         {listNode ? <SourceRef source={listNode.source} /> : null}
 
-        {quoteNode ? (
+        {quoteNode && quoteDual ? (
           <blockquote
             cite={quoteNode.source ? `#L${String(quoteNode.source.lineStart)}` : undefined}
             className="border-l-2 border-accent-amber bg-panel-black/40 p-6"
@@ -55,8 +61,16 @@ export const Algorithm = ({ nodes }: AlgorithmProps) => {
               The Algorithm
             </p>
             <p className="mt-3 text-2xl font-semibold leading-snug text-body-white sm:text-3xl">
-              {quoteNode.text.en}
+              {quoteDual.primary}
             </p>
+            {quoteDual.secondary ? (
+              <p
+                lang="zh"
+                className="mt-4 border-l border-white/15 pl-4 text-base leading-7 text-muted-white/80"
+              >
+                {quoteDual.secondary}
+              </p>
+            ) : null}
             <SourceRef source={quoteNode.source} />
           </blockquote>
         ) : null}

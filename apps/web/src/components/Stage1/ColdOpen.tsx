@@ -1,4 +1,9 @@
+"use client";
+
 import type { ContentNode } from "@spcx/content";
+
+import { useLocale } from "../../hooks/useLocalized";
+import { dualText } from "../../lib/localized";
 
 import { ColdOpenInner } from "./ColdOpenInner";
 
@@ -43,7 +48,34 @@ export const ColdOpen = ({ nodes }: ColdOpenProps) => {
     throw new Error("Stage 1: missing Musk quote content node");
   }
 
-  const { body, attribution } = splitQuote(muskQuote.text.en);
+  const locale = useLocale();
+  const { primary, secondary } = dualText(muskQuote, locale);
+  const { body, attribution } = splitQuote(primary);
+  // Voice rule (docs/voice-and-visual.md): the Musk quote keeps its
+  // English original in the Chinese locale and adds a translation
+  // beneath. Only run the parser on `secondary` when the translator
+  // preserved the body + em-dash attribution shape — otherwise we drop
+  // the bilingual block silently rather than throwing on render.
+  let secondaryBody: string | undefined;
+  let secondaryAttribution: string | undefined;
+  if (secondary) {
+    try {
+      const parsed = splitQuote(secondary);
+      secondaryBody = parsed.body;
+      secondaryAttribution = parsed.attribution;
+    } catch {
+      secondaryBody = undefined;
+      secondaryAttribution = undefined;
+    }
+  }
 
-  return <ColdOpenInner body={body} attribution={attribution} source={muskQuote.source} />;
+  return (
+    <ColdOpenInner
+      body={body}
+      attribution={attribution}
+      secondaryBody={secondaryBody}
+      secondaryAttribution={secondaryAttribution}
+      source={muskQuote.source}
+    />
+  );
 };

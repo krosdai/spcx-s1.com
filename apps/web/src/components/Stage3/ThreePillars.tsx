@@ -1,5 +1,9 @@
+"use client";
+
 import type { ContentNode } from "@spcx/content";
 
+import { useLocale } from "../../hooks/useLocalized";
+import { dualText, primaryText } from "../../lib/localized";
 import { cleanProse, parseList } from "../../lib/textHelpers";
 import { SourceRef } from "../SourceRef";
 import { StageSection } from "../StageSection";
@@ -38,16 +42,23 @@ const buildPillar = (
 };
 
 export const ThreePillars = ({ nodes }: ThreePillarsProps) => {
+  const locale = useLocale();
   const pillars: Pillar[] = PILLAR_DEFINITIONS.map((def) => ({
     ...def,
     ...buildPillar(nodes, def.idPrefix),
   }));
 
   return (
-    <StageSection id={3} title="The Three Pillars">
+    <StageSection id={3}>
       <div className="space-y-20">
         {pillars.map((pillar) => {
-          const parsedList = pillar.summary ? parseList(pillar.summary.text.en) : null;
+          // Pillar summary cards parse the list into per-product entries;
+          // non-verbatim, so primary string follows the locale and parses
+          // either English or Chinese with identical structural markers.
+          const parsedList = pillar.summary
+            ? parseList(primaryText(pillar.summary, locale))
+            : null;
+          const detailDual = pillar.detail ? dualText(pillar.detail, locale) : null;
 
           return (
             <article
@@ -91,15 +102,23 @@ export const ThreePillars = ({ nodes }: ThreePillarsProps) => {
 
               {pillar.summary ? <SourceRef source={pillar.summary.source} /> : null}
 
-              {pillar.detail ? (
+              {pillar.detail && detailDual ? (
                 <details className="group mt-8 border-t border-white/10 pt-6">
                   <summary className="cursor-pointer font-telemetry text-xs uppercase tracking-[0.16em] text-muted-white hover:text-body-white">
                     Full Business detail
                   </summary>
                   <div className="mt-4 space-y-3">
                     <p className="whitespace-pre-wrap font-body text-sm leading-7 text-muted-white">
-                      {cleanProse(pillar.detail.text.en)}
+                      {cleanProse(detailDual.primary)}
                     </p>
+                    {detailDual.secondary ? (
+                      <p
+                        lang="zh"
+                        className="whitespace-pre-wrap border-l border-white/15 pl-3 font-body text-sm leading-7 text-muted-white/80"
+                      >
+                        {cleanProse(detailDual.secondary)}
+                      </p>
+                    ) : null}
                     <SourceRef source={pillar.detail.source} />
                   </div>
                 </details>
@@ -107,19 +126,30 @@ export const ThreePillars = ({ nodes }: ThreePillarsProps) => {
 
               {pillar.extras.length > 0 ? (
                 <div className="mt-8 space-y-6">
-                  {pillar.extras.map((extra) => (
-                    <details key={extra.id} className="border-t border-white/10 pt-6">
-                      <summary className="cursor-pointer font-telemetry text-xs uppercase tracking-[0.16em] text-muted-white hover:text-body-white">
-                        {extra.source?.sectionTitle ?? "Additional detail"}
-                      </summary>
-                      <div className="mt-4 space-y-3">
-                        <p className="whitespace-pre-wrap font-body text-sm leading-7 text-muted-white">
-                          {cleanProse(extra.text.en)}
-                        </p>
-                        <SourceRef source={extra.source} />
-                      </div>
-                    </details>
-                  ))}
+                  {pillar.extras.map((extra) => {
+                    const extraDual = dualText(extra, locale);
+                    return (
+                      <details key={extra.id} className="border-t border-white/10 pt-6">
+                        <summary className="cursor-pointer font-telemetry text-xs uppercase tracking-[0.16em] text-muted-white hover:text-body-white">
+                          {extra.source?.sectionTitle ?? "Additional detail"}
+                        </summary>
+                        <div className="mt-4 space-y-3">
+                          <p className="whitespace-pre-wrap font-body text-sm leading-7 text-muted-white">
+                            {cleanProse(extraDual.primary)}
+                          </p>
+                          {extraDual.secondary ? (
+                            <p
+                              lang="zh"
+                              className="whitespace-pre-wrap border-l border-white/15 pl-3 font-body text-sm leading-7 text-muted-white/80"
+                            >
+                              {cleanProse(extraDual.secondary)}
+                            </p>
+                          ) : null}
+                          <SourceRef source={extra.source} />
+                        </div>
+                      </details>
+                    );
+                  })}
                 </div>
               ) : null}
             </article>
