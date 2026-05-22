@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import type { ContentNode } from "@spcx/content";
 
-import { useLocale } from "../../hooks/useLocalized";
+import { useLocale, useUiString } from "../../hooks/useLocalized";
 import { dualText } from "../../lib/localized";
 import { SourceRef } from "../SourceRef";
 
@@ -15,6 +15,7 @@ interface EndCreditsProps {
 
 export const EndCredits = ({ authored, caveat, glossary }: EndCreditsProps) => {
   const locale = useLocale();
+  const title = useUiString("stage.title.10");
   const [query, setQuery] = useState("");
   const normalizedQuery = query.trim().toLowerCase();
   // Glossary search matches against the term, the English definition,
@@ -47,7 +48,7 @@ export const EndCredits = ({ authored, caveat, glossary }: EndCreditsProps) => {
             Stage 10
           </p>
           <h2 id="stage-10-title" className="mt-4 text-4xl font-semibold">
-            End Credits
+            {title}
           </h2>
           <div className="mt-8 space-y-4 text-muted-white">
             {authored.map((node) => {

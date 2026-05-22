@@ -2,7 +2,7 @@
 
 import type { ContentNode } from "@spcx/content";
 
-import { useLocale } from "../../hooks/useLocalized";
+import { useLocale, useUiString } from "../../hooks/useLocalized";
 import { dualText, primaryText } from "../../lib/localized";
 import { cleanProse } from "../../lib/textHelpers";
 import { parseGroupedList } from "../../lib/groupedList";
@@ -16,6 +16,7 @@ interface HorizonProps {
 
 export const Horizon = ({ nodes }: HorizonProps) => {
   const locale = useLocale();
+  const title = useUiString("stage.title.9");
   const kardashev = nodes.find((node) => node.id === "stage9.horizon.kardashev-framing");
   const futureSummary = nodes.find(
     (node) => node.id === "stage9.horizon.future-markets-summary",
@@ -51,7 +52,7 @@ export const Horizon = ({ nodes }: HorizonProps) => {
           id="stage-9-title"
           className="mt-4 text-4xl font-semibold leading-tight sm:text-5xl"
         >
-          The Horizon
+          {title}
         </h2>
 
         <div className="mt-12 space-y-16">

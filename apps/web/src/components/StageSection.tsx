@@ -3,10 +3,10 @@
 import type { ReactNode } from "react";
 
 import { useUiString } from "../hooks/useLocalized";
-import { stageTitleId } from "../lib/uiStrings";
+import { stageTitleId, type StageWithTitle } from "../lib/uiStrings";
 
 interface StageSectionProps {
-  id: number;
+  id: StageWithTitle;
   // Optional override — otherwise the title is looked up from the
   // UI-string registry by stage id so locale switching is automatic.
   title?: string;
