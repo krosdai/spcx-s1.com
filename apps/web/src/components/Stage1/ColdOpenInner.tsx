@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import type { SourceRef as SourceRefType } from "@spcx/content";
 
 import { useCanCinematic } from "../../hooks/useCanCinematic";
+import { useSectionInView } from "../../hooks/useSectionInView";
 import { SourceRef } from "../SourceRef";
 
 const Starfield = dynamic(
@@ -24,6 +25,7 @@ const TYPE_LEAD_DELAY_MS = 280;
 
 export const ColdOpenInner = ({ body, attribution, source }: ColdOpenInnerProps) => {
   const cinematic = useCanCinematic();
+  const sectionInView = useSectionInView("stage-1");
   const sectionRef = useRef<HTMLElement>(null);
   const [typed, setTyped] = useState<string>(body);
   const [typing, setTyping] = useState(false);
@@ -96,7 +98,7 @@ export const ColdOpenInner = ({ body, attribution, source }: ColdOpenInnerProps)
       aria-labelledby="stage-1-title"
       className="relative isolate flex min-h-screen items-center overflow-hidden bg-space-black px-6 py-32"
     >
-      {cinematic ? <Starfield /> : null}
+      {cinematic && sectionInView ? <Starfield /> : null}
       <div className="mx-auto flex w-full max-w-4xl flex-col">
         <p className="font-telemetry text-xs uppercase tracking-[0.18em] text-accent-teal">
           Stage 01

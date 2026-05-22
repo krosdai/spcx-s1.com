@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 
 import { useCanCinematic } from "../../hooks/useCanCinematic";
+import { useSectionInView } from "../../hooks/useSectionInView";
 
 const PlanetHorizon = dynamic(
   () => import("./PlanetHorizon").then((mod) => ({ default: mod.PlanetHorizon })),
@@ -11,8 +12,12 @@ const PlanetHorizon = dynamic(
 
 export const HorizonCinematic = () => {
   const cinematic = useCanCinematic();
-  if (!cinematic) return null;
+  const sectionInView = useSectionInView("stage-9");
+  if (!cinematic || !sectionInView) return null;
 
+  // Sticky backdrop pinned through Stage 9. Unmounted when the
+  // section scrolls out of range so the rAF loop and WebGL context
+  // don't tick for an invisible scene.
   return (
     <div
       aria-hidden="true"
