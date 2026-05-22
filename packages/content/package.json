@@ -15,6 +15,8 @@
   "scripts": {
     "build": "tsc --noEmit && node --import tsx bin/validate.ts",
     "validate": "node --import tsx bin/validate.ts",
+    "validate:phase4": "node --import tsx bin/validate.ts --phase=4",
+    "audit-zh": "node --import tsx bin/audit-zh.ts",
     "refresh-manifest": "node --import tsx bin/refresh-manifest.ts",
     "test": "vitest run",
     "lint": "eslint . --no-error-on-unmatched-pattern",

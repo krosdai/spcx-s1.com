@@ -133,4 +133,28 @@ describe("validator rules", () => {
 
     expectRule(nodes, 11);
   });
+
+  it("catches rule 12 missing zh in phase 4", () => {
+    const result = validateContent({ phase: 4 });
+
+    expect(result.errors.some((error) => error.rule === 12)).toBe(true);
+  });
+
+  it("does not flag rule 12 outside phase 4", () => {
+    const result = validateContent();
+
+    expect(result.errors.some((error) => error.rule === 12)).toBe(false);
+  });
+
+  it("catches rule 12 whitespace-only zh in phase 4", () => {
+    const nodes = cloneNodes();
+    const idx = findSourcedIndex();
+    nodes[idx] = { ...nodes[idx], text: { en: nodes[idx].text.en, zh: "   " } };
+
+    const result = validateContent({ nodes, phase: 4 });
+
+    expect(result.errors.some((error) => error.rule === 12 && error.id === nodes[idx].id)).toBe(
+      true,
+    );
+  });
 });

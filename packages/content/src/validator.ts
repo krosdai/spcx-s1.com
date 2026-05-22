@@ -197,7 +197,12 @@ export const validateContent = (options: ValidateOptions = {}): ValidationResult
       errors.push(issue(11, node, "text.en", "English text is required"));
     }
 
-    if (options.phase === 4 && node.text.zh === undefined) {
+    // Rule 12 treats undefined, missing, and whitespace-only zh strings the
+    // same — they all signal a translation gap. The registry's `withZh`
+    // factory already omits the key when getZh returns undefined, so an
+    // empty entry never reaches here, but defensive checking keeps a
+    // hand-edited stage file from sneaking past.
+    if (options.phase === 4 && !node.text.zh?.trim()) {
       errors.push(issue(12, node, "text.zh", "Chinese text key is required in Phase 4"));
     }
   }

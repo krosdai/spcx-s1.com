@@ -1,5 +1,13 @@
 import type { ContentKind, ContentNode, RiskCategory, StageId } from "../schema";
 import { sourceRef, textFromSource } from "../source";
+import { getZh } from "../translations";
+
+// Attaches `text.zh` from the translation registry when an entry exists.
+// Returning a fresh `text` object keeps the original literal untouched.
+const withZh = (id: string, en: string): ContentNode["text"] => {
+  const zh = getZh(id);
+  return zh === undefined ? { en } : { en, zh };
+};
 
 interface SourceNodeInput {
   id: string;
@@ -29,12 +37,13 @@ export const sourceNode = ({
   milestone,
 }: SourceNodeInput): ContentNode => {
   const source = sourceRef(lineStart, lineEnd, sectionTitle);
+  const en = textFromSource(source);
 
   return {
     id,
     stage,
     kind,
-    text: { en: textFromSource(source) },
+    text: withZh(id, en),
     verbatim: true,
     source,
     ...(tags ? { tags } : {}),
@@ -54,7 +63,7 @@ export const authoredNode = (
   id,
   stage,
   kind: "authored",
-  text: { en },
+  text: withZh(id, en),
   verbatim: false,
   source: null,
   ...(tags ? { tags } : {}),

@@ -1,6 +1,7 @@
 export * from "./schema";
 export { manifest, sourceManifest } from "./manifest";
 export { SOURCE_FILE, normalizeWhitespace } from "./source";
+export { getZh, missingZhIds, zhTranslations } from "./translations";
 
 import type { ContentNode, StageId } from "./schema";
 import { stage0Nodes } from "./stages/stage0";
