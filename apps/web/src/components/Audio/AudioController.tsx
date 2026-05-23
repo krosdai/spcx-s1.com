@@ -264,11 +264,30 @@ export const AudioController = () => {
     };
   }, [audioOn, reducedMotion, isMobile, hasHydrated]);
 
+  // Reset the TTS "has played this enable" latch whenever `ttsOn`
+  // flips off. The latch's job is to keep the auto-trigger from
+  // firing twice for the same opt-in (e.g. if an unrelated dep
+  // changes mid-playback and re-runs the effect). When the reader
+  // explicitly stops narration, the next click on Play should start
+  // fresh, so we clear the latch (and rewind the audio element) so
+  // the next observer can fire again.
+  useEffect(() => {
+    if (ttsOn) return;
+    ttsPlayedRef.current = false;
+    if (ttsRef.current) {
+      ttsRef.current.currentTime = 0;
+    }
+  }, [ttsOn]);
+
   // Optional Stage 1 TTS narration. Independent of the main SFX cue;
-  // fires only when the reader has explicitly opted in via the shell.
-  // Same mobile / reduced-motion gates apply. The cleanup pauses the
-  // element (not just the observer) so toggling `audioOn`, `ttsOn`,
-  // or reduced-motion mid-playback actually stops the audio.
+  // fires only when the reader has explicitly opted in via the
+  // NarrationToggle. Same mobile / reduced-motion gates apply. The
+  // cleanup pauses the element (not just the observer) so toggling
+  // `audioOn`, `ttsOn`, or reduced-motion mid-playback actually stops
+  // the audio. An `ended` listener flips `ttsOn` back to false when
+  // the clip finishes naturally so the toggle's label reverts to
+  // "Play" and `aria-pressed` no longer claims the narration is
+  // active.
   useEffect(() => {
     if (!hasHydrated) return undefined;
     if (!audioOn || !ttsOn || reducedMotion || isMobile) return undefined;
@@ -283,9 +302,17 @@ export const AudioController = () => {
     }
 
     const el = ttsRef.current;
+    const handleEnded = () => {
+      ttsPlayedRef.current = false;
+      if (useUIStore.getState().ttsOn) {
+        useUIStore.getState().toggleTts();
+      }
+    };
+    el.addEventListener("ended", handleEnded);
+
     const cleanupObserver = observeStageEnter("stage-1", () => {
       // Same latch-on-success rule as the SFX cue above — a 404 on
-      // the not-yet-shipped TTS file shouldn't burn the one-shot for
+      // a not-yet-shipped TTS file shouldn't burn the one-shot for
       // a future visit where the file exists.
       void el
         .play()
@@ -297,6 +324,7 @@ export const AudioController = () => {
 
     return () => {
       cleanupObserver();
+      el.removeEventListener("ended", handleEnded);
       el.pause();
     };
   }, [audioOn, ttsOn, reducedMotion, isMobile, hasHydrated]);
