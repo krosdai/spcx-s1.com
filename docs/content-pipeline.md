@@ -280,10 +280,10 @@ To add or update a translation:
 3. Audit coverage with `pnpm --filter @spcx/content audit-zh`. Pass
    `--quiet` to suppress the per-node missing list and just see the
    per-stage tally.
-4. Run `pnpm --filter @spcx/content validate:phase4` to see which ids
-   still trip rule 12. The default `validate` script stays in phase 1
-   mode until the registry is complete; the build script will switch
-   to phase 4 once translations land.
+4. Run `pnpm --filter @spcx/content validate` to see which ids still
+   trip rule 12. The default script runs at `--phase=4` now that the
+   registry is complete, so a missing zh fails the build. Use
+   `validate:phase1` only to debug zh-only failures in isolation.
 
 The validator considers a missing key, an undefined value, and a
 whitespace-only string as the same translation gap.

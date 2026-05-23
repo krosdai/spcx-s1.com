@@ -146,9 +146,11 @@ rules.
       `packages/content/src/translations/zh.ts` — keyed by node id,
       one canonical translation per node, looked up by the existing
       `sourceNode` / `authoredNode` factories. Initially empty.
-- [x] Validator rule 12 wired to `--phase=4` flag. Run with
-      `pnpm --filter @spcx/content validate:phase4`. Build default
-      stays at phase 1 until the registry is populated.
+- [x] Validator rule 12 wired to `--phase=4` flag. Originally exposed
+      as `validate:phase4` while the build defaulted to phase 1;
+      PR B₃ flipped the default to phase 4 (the build runs at phase 4
+      by default and the inverse `validate:phase1` is now the escape
+      hatch). The historical script name is preserved here for context.
 - [x] Coverage audit: `pnpm --filter @spcx/content audit-zh`
       (`--quiet` for tally only) lists every missing translation
       grouped by stage and exits non-zero while gaps remain.
