@@ -49,7 +49,7 @@ export default function Home() {
     // persistent shell controls instead of the reading flow.
     <main id="main-content" tabIndex={-1}>
       <MissionBriefing nodes={stage0} />
-      <Stage0Stub />
+      <Stage0Stub nodes={stage0} />
       {STAGES.slice(1, 10).map((stage) => {
         const rendered = stageRenderers[stage.id];
         if (rendered) {
