@@ -193,16 +193,27 @@ PR B₂ — stages 2-9 + label migration (this branch):
 - [x] `pnpm -r build`, `pnpm lint`, `pnpm --filter @spcx/content test`
       all green.
 
-Out of scope here (carried into PR B₃):
+PR B₃ — stage 10 glossary + phase-4 gate (this branch):
 
-- [ ] Populate `zh.ts` for stage 10's glossary (122 entries, Kros to
-      draft) plus EndCredits' "Forward-Looking Statements" + glossary
-      search labels.
-- [ ] Flip the build script to `validate:phase4` so missing entries
-      fail CI.
+- [x] Populate `zh.ts` for stage 10's glossary (122 entries) plus the
+      Forward-Looking Statements caveat and four authored credit
+      lines — 193/193 entries covered.
+- [x] EndCredits "Forward-Looking Statements" heading + "Glossary
+      Search" label routed through `uiStrings`. Stage 10 title also
+      filled in zh.
+- [x] Default validator phase flipped to 4: `bin/validate.ts` now
+      defaults to phase 4, `packages/content/package.json`'s `build`
+      and `validate` scripts pass `--phase=4`, and the new
+      `validate:phase1` escape hatch is the only path back to the old
+      gate. Rule 12 now hard-fails CI on any missing zh.
+- [x] `pnpm -r build`, `pnpm lint`, `pnpm --filter @spcx/content test`
+      all green.
+
+Still deferred (tracked separately):
+
 - [ ] KPI / milestone metadata labels still render in English (the
       `kpi.label` / `milestone.label` fields live on the schema, not in
-      uiStrings) — a schema-level fix tracked separately.
+      uiStrings) — a schema-level fix.
 - [ ] `node.source?.sectionTitle` still surfaces verbatim English in
       details summaries (Stage 3 extras, Stage 6 tables) — needs a
       section-title translation map.
