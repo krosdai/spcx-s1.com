@@ -8,6 +8,7 @@ import { useCanCinematic } from "../../hooks/useCanCinematic";
 import { useStageEyebrow, useUiString } from "../../hooks/useLocalized";
 import { useSectionInView } from "../../hooks/useSectionInView";
 import { SourceRef } from "../SourceRef";
+import { NarrationToggle } from "./NarrationToggle";
 
 const Starfield = dynamic(
   () => import("./Starfield").then((mod) => ({ default: mod.Starfield })),
@@ -146,6 +147,7 @@ export const ColdOpenInner = ({
         <div className="mt-8">
           <SourceRef source={source} />
         </div>
+        <NarrationToggle />
       </div>
     </section>
   );

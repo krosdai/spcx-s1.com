@@ -44,6 +44,12 @@ export const UI_STRINGS = {
 
   "stage4.algorithm.callout": { en: "The Algorithm", zh: "算法准则" },
 
+  // Stage 1 — Cold-open narration toggle (PR D₃). The button lives
+  // inline under the Musk quote and is the only surface that flips
+  // the persisted `ttsOn` flag.
+  "stage1.narration.play": { en: "Play narration", zh: "播放朗读" },
+  "stage1.narration.stop": { en: "Stop narration", zh: "停止朗读" },
+
   // Stage 2 — Who We Are
   "stage2.kpis.aria": { en: "Headline scale metrics", zh: "核心规模指标" },
   "stage2.milestones.heading": { en: "Milestones", zh: "里程碑" },
