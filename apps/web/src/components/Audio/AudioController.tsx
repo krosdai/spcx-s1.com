@@ -153,26 +153,38 @@ export const AudioController = () => {
     // user gesture. The common case: a returning visitor with
     // `audioOn` persisted true lands fresh on the page, the effect
     // runs immediately, but the browser hasn't recorded a gesture
-    // for this document yet so playback is denied. Wire a one-shot
-    // pointer-down / key-down listener that retries on the next
+    // for this document yet so playback is denied. Wire one-shot
+    // pointer-down / key-down listeners that retry on the next
     // interaction so the visible "audio on" state actually matches
-    // what the reader hears. Clears itself once playback starts or
-    // the effect re-runs.
+    // what the reader hears. Re-arms on continued failure because
+    // not every `pointerdown` / `keydown` produces a user activation
+    // token (modifier keys alone, IME composition, right-click in
+    // Chrome). Only stops on successful playback or effect re-run.
     let cancelled = false;
     let retryListener: (() => void) | null = null;
+
+    const detachRetry = () => {
+      if (!retryListener) return;
+      document.removeEventListener("pointerdown", retryListener);
+      document.removeEventListener("keydown", retryListener);
+      retryListener = null;
+    };
 
     const attachRetry = () => {
       if (cancelled || retryListener) return;
       const handler = () => {
         if (cancelled) return;
-        retryListener = null;
-        document.removeEventListener("pointerdown", handler);
-        document.removeEventListener("keydown", handler);
-        void el.play().catch(() => undefined);
+        detachRetry();
+        void el.play().catch(() => {
+          // The triggering event didn't produce a user activation
+          // token (e.g. a Shift / Ctrl keydown alone). Re-arm so the
+          // next interaction gets another chance.
+          if (!cancelled) attachRetry();
+        });
       };
       retryListener = handler;
-      document.addEventListener("pointerdown", handler, { once: true });
-      document.addEventListener("keydown", handler, { once: true });
+      document.addEventListener("pointerdown", handler);
+      document.addEventListener("keydown", handler);
     };
 
     void el.play().catch(() => {
@@ -181,10 +193,7 @@ export const AudioController = () => {
 
     return () => {
       cancelled = true;
-      if (retryListener) {
-        document.removeEventListener("pointerdown", retryListener);
-        document.removeEventListener("keydown", retryListener);
-      }
+      detachRetry();
       el.pause();
     };
   }, [audioOn, reducedMotion, hasHydrated]);
