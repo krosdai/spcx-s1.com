@@ -212,18 +212,47 @@ export const AudioController = () => {
     }
 
     const audioEl = el;
-    return observeStageEnter("stage-1", () => {
-      // Only latch the cue as played once `.play()` resolves. Until
-      // the asset lands in PR D₂ the file is 404 and the promise
-      // rejects — we want a future visit (where the file exists) to
-      // still fire the cue, not latch on the failure.
+
+    // Same autoplay retry pattern as the BGM effect: if Stage 1
+    // intersects before the first user gesture, `play()` rejects
+    // and the observer disconnects (one-shot). Without a retry the
+    // chime is lost for the rest of the session for a returning
+    // visitor with `audioOn` persisted true. So on rejection we
+    // attach one-shot `pointerdown` / `keydown` listeners that fire
+    // the cue on the next interaction.
+    let retryListener: (() => void) | null = null;
+    let cancelled = false;
+    const attemptPlay = () => {
+      if (cancelled) return;
       void audioEl
         .play()
         .then(() => {
           sfxPlayedRef.current.add(cue.id);
         })
-        .catch(() => undefined);
-    });
+        .catch(() => {
+          if (cancelled || retryListener) return;
+          const handler = () => {
+            if (cancelled) return;
+            retryListener = null;
+            document.removeEventListener("pointerdown", handler);
+            document.removeEventListener("keydown", handler);
+            attemptPlay();
+          };
+          retryListener = handler;
+          document.addEventListener("pointerdown", handler, { once: true });
+          document.addEventListener("keydown", handler, { once: true });
+        });
+    };
+
+    const cleanupObserver = observeStageEnter("stage-1", attemptPlay);
+    return () => {
+      cancelled = true;
+      cleanupObserver();
+      if (retryListener) {
+        document.removeEventListener("pointerdown", retryListener);
+        document.removeEventListener("keydown", retryListener);
+      }
+    };
   }, [audioOn, reducedMotion, isMobile, hasHydrated]);
 
   // Optional Stage 1 TTS narration. Independent of the main SFX cue;
