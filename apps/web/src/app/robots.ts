@@ -8,17 +8,19 @@ export const revalidate = false;
 
 const SITE_URL = "https://spcx-s1.com";
 
-// Allow every crawler. The site is a single static page with no
-// private routes; the only guard is the `noai` request below, which
-// asks AI training crawlers to skip the source-bound prose. Standard
-// search engines and social-card scrapers (Twitter, Slack, etc.) are
-// allowed to fetch everything.
+// Standard search engines and social-card scrapers (Twitter, Slack,
+// etc.) are allowed under the wildcard rule. The listed
+// LLM-training agents are hard-disallowed via per-agent
+// `Disallow: /` groups so they skip the source-bound prose entirely
+// (most-specific group wins for those user agents). `ClaudeBot`
+// covers current Anthropic crawling — the legacy `anthropic-ai`
+// token was retired and is intentionally omitted.
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       { userAgent: "*", allow: "/" },
       {
-        userAgent: ["GPTBot", "Google-Extended", "CCBot", "ClaudeBot", "anthropic-ai"],
+        userAgent: ["GPTBot", "Google-Extended", "CCBot", "ClaudeBot"],
         disallow: "/",
       },
     ],
