@@ -148,12 +148,43 @@ export const AudioController = () => {
     }
 
     const el = bgmRef.current;
+
     // `.play()` may reject if the browser blocks autoplay before a
-    // user gesture. Swallow the rejection — the user already opted
-    // in by clicking the toggle, so a missed start is a no-op.
-    void el.play().catch(() => undefined);
+    // user gesture. The common case: a returning visitor with
+    // `audioOn` persisted true lands fresh on the page, the effect
+    // runs immediately, but the browser hasn't recorded a gesture
+    // for this document yet so playback is denied. Wire a one-shot
+    // pointer-down / key-down listener that retries on the next
+    // interaction so the visible "audio on" state actually matches
+    // what the reader hears. Clears itself once playback starts or
+    // the effect re-runs.
+    let cancelled = false;
+    let retryListener: (() => void) | null = null;
+
+    const attachRetry = () => {
+      if (cancelled || retryListener) return;
+      const handler = () => {
+        if (cancelled) return;
+        retryListener = null;
+        document.removeEventListener("pointerdown", handler);
+        document.removeEventListener("keydown", handler);
+        void el.play().catch(() => undefined);
+      };
+      retryListener = handler;
+      document.addEventListener("pointerdown", handler, { once: true });
+      document.addEventListener("keydown", handler, { once: true });
+    };
+
+    void el.play().catch(() => {
+      attachRetry();
+    });
 
     return () => {
+      cancelled = true;
+      if (retryListener) {
+        document.removeEventListener("pointerdown", retryListener);
+        document.removeEventListener("keydown", retryListener);
+      }
       el.pause();
     };
   }, [audioOn, reducedMotion, hasHydrated]);
