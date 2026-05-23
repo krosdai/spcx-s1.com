@@ -104,7 +104,13 @@ const SET_LANG_BEFORE_HYDRATE = `try{var r=localStorage.getItem('spcx-ui');if(r)
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en">
+    // `suppressHydrationWarning` is intentional here: the inline
+    // pre-hydration script flips `lang` to the persisted locale
+    // before React hydrates, so the server-emitted `lang="en"` and
+    // the post-script `lang="zh"` (for returning zh visitors) will
+    // always disagree by design. Without the flag, React logs a
+    // hydration-mismatch error on every zh-locale page load.
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: SET_LANG_BEFORE_HYDRATE }} />
       </head>
