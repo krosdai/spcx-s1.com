@@ -4,7 +4,7 @@ import type { ContentNode } from "@spcx/content";
 
 import { useLocale, useUiString } from "../../hooks/useLocalized";
 import { dualText } from "../../lib/localized";
-import { reflowProse } from "../../lib/textHelpers";
+import { splitReflowedParagraphs } from "../../lib/textHelpers";
 import { SourceRef } from "../SourceRef";
 import { StageSection } from "../StageSection";
 import { Kpi } from "./Kpi";
@@ -38,22 +38,31 @@ export const WhoWeAre = ({ nodes }: WhoWeAreProps) => {
           {prose.map((node) => {
             const { primary, secondary } = dualText(node, locale);
             // The S-1 source file hard-wraps every paragraph at ~110
-            // chars for the PDF; `reflowProse` collapses those source
-            // line breaks back into a single paragraph so the browser
-            // wraps naturally to the column width. We drop
-            // `whitespace-pre-wrap` for the same reason.
+            // chars for the PDF; `splitReflowedParagraphs` collapses
+            // those intra-paragraph wraps and returns each paragraph
+            // separately so we can emit one `<p>` per paragraph.
+            // Rendering everything in a single `<p>` would silently
+            // drop the paragraph boundaries (HTML collapses inner
+            // newlines), turning multi-paragraph nodes into a run-on
+            // wall of text.
+            const primaryParagraphs = splitReflowedParagraphs(primary);
+            const secondaryParagraphs = secondary ? splitReflowedParagraphs(secondary) : [];
             return (
               <article key={node.id} className="space-y-4">
-                <p className="font-body text-base leading-7 text-body-white">
-                  {reflowProse(primary)}
-                </p>
-                {secondary ? (
-                  <p
+                <div className="space-y-4 font-body text-base leading-7 text-body-white">
+                  {primaryParagraphs.map((paragraph, idx) => (
+                    <p key={`${node.id}-en-${String(idx)}`}>{paragraph}</p>
+                  ))}
+                </div>
+                {secondaryParagraphs.length > 0 ? (
+                  <div
                     lang="zh"
-                    className="border-l border-white/15 pl-3 font-body text-sm leading-7 text-muted-white/80"
+                    className="space-y-3 border-l border-white/15 pl-3 font-body text-sm leading-7 text-muted-white/80"
                   >
-                    {reflowProse(secondary)}
-                  </p>
+                    {secondaryParagraphs.map((paragraph, idx) => (
+                      <p key={`${node.id}-zh-${String(idx)}`}>{paragraph}</p>
+                    ))}
+                  </div>
                 ) : null}
                 <SourceRef source={node.source} />
               </article>

@@ -85,11 +85,26 @@ export const cleanProse = (text: string): string => sanitize(text.split(/\r?\n/)
 // Use the rendered output with normal HTML wrapping — do not pair it
 // with `whitespace-pre-wrap` or the spaces will collapse oddly.
 export const reflowProse = (text: string): string =>
-  text
+  // Run the same `sanitize` filter as `cleanProse` first so isolated
+  // SEC page-number lines (e.g. "4" between paragraphs of the why-now
+  // copy, "16" inside the Stage 7 risk summary range) drop out
+  // instead of becoming visible standalone paragraphs after the
+  // reflow.
+  sanitize(text.split(/\r?\n/))
+    .join("\n")
     .split(/\n{2,}/)
     .map((paragraph) => paragraph.replace(/\s*\n\s*/g, " ").trim())
     .filter((paragraph) => paragraph.length > 0)
     .join("\n\n");
+
+// Split a reflowed prose string into discrete paragraphs (the `\n\n`
+// breakpoints that `reflowProse` preserves). Lets a renderer emit
+// multiple `<p>` elements instead of relying on `whitespace-pre-wrap`
+// to coerce newlines into visible breaks.
+export const splitReflowedParagraphs = (text: string): string[] =>
+  reflowProse(text)
+    .split(/\n{2,}/)
+    .filter((paragraph) => paragraph.length > 0);
 
 export const localized = (node: ContentNode, locale: "en" | "zh"): string => {
   const candidate = node.text[locale];
