@@ -18,9 +18,21 @@ import { useUIStore } from "../../stores/uiStore";
 
 const MOBILE_QUERY = "(max-width: 768px)";
 
+// Lazily initialize from `matchMedia` so the first paint after
+// hydration already reflects the viewport — without this, mobile
+// readers would see the button for one render before the effect ran
+// and could tap a control that the AudioController is about to gate
+// out. The lazy initializer runs only on the client because the SSR
+// render uses `useState(false)` (window is undefined server-side).
+const initialIsMobile = (): boolean => {
+  if (typeof window === "undefined") return false;
+  if (typeof window.matchMedia !== "function") return false;
+  return window.matchMedia(MOBILE_QUERY).matches;
+};
+
 const useTtsAvailable = (): boolean => {
   const reducedMotion = useUIStore((state) => state.reducedMotion);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(initialIsMobile);
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
