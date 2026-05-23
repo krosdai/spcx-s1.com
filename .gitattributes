@@ -113,3 +113,8 @@
 *.meta              linguist-generated
 *.prefab            linguist-generated
 *.unity             linguist-generated
+# Site audio assets are small enough to commit directly; bypass the
+# Unity-template LFS rule above so the deploy workflow's actions/checkout
+# (which does not pull LFS by default) receives playable MP3 binaries
+# instead of LFS pointer text.
+apps/web/public/audio/*.mp3 !filter !diff !merge text=auto -text
