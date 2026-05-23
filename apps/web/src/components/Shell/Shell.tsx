@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 
+import { AudioController } from "../Audio/AudioController";
 import { useUIStore } from "../../stores/uiStore";
 import { ChapterIndex } from "./ChapterIndex";
 import { Controls } from "./Controls";
@@ -22,6 +23,7 @@ export const Shell = () => {
       <TMinusBar />
       <ChapterIndex />
       <Controls />
+      <AudioController />
     </>
   );
 };

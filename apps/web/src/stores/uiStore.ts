@@ -8,6 +8,11 @@ export type Locale = "en" | "zh";
 interface UIState {
   locale: Locale;
   audioOn: boolean;
+  // Stage 1 TTS narration of the Musk quote. Off by default; persists
+  // its own bit so a reader who explicitly opts in keeps it on between
+  // visits. The audio toggle (`audioOn`) is the master gate — TTS only
+  // plays when both are on.
+  ttsOn: boolean;
   sourceVisible: boolean;
   modalOpen: boolean;
   modalDismissed: boolean;
@@ -17,6 +22,7 @@ interface UIState {
   hasHydrated: boolean;
   setLocale: (locale: Locale) => void;
   toggleAudio: () => void;
+  toggleTts: () => void;
   toggleSource: () => void;
   openModal: () => void;
   dismissModal: () => void;
@@ -44,6 +50,7 @@ export const useUIStore = create<UIState>()(
       return {
         locale: "en",
         audioOn: false,
+        ttsOn: false,
         sourceVisible: false,
         // Default modalOpen to false. After rehydration completes,
         // `onRehydrateStorage` flips it to true for first-time visitors
@@ -58,6 +65,7 @@ export const useUIStore = create<UIState>()(
         hasHydrated: false,
         setLocale: (locale) => set({ locale }),
         toggleAudio: () => set((state) => ({ audioOn: !state.audioOn })),
+        toggleTts: () => set((state) => ({ ttsOn: !state.ttsOn })),
         toggleSource: () => set((state) => ({ sourceVisible: !state.sourceVisible })),
         openModal: () => set({ modalOpen: true }),
         dismissModal: () => set({ modalOpen: false, modalDismissed: true }),
@@ -89,6 +97,7 @@ export const useUIStore = create<UIState>()(
       partialize: (state) => ({
         locale: state.locale,
         audioOn: state.audioOn,
+        ttsOn: state.ttsOn,
         sourceVisible: state.sourceVisible,
         modalDismissed: state.modalDismissed,
       }),
