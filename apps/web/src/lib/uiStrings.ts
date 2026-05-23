@@ -234,6 +234,13 @@ export const UI_STRINGS = {
   },
   "stage9.closing.eyebrow": { en: "Closing transmission", zh: "结尾传讯" },
 
+  // Stage 10 — End Credits
+  "stage10.forward-looking.heading": {
+    en: "Forward-Looking Statements",
+    zh: "前瞻性陈述",
+  },
+  "stage10.glossary.search.label": { en: "Glossary Search", zh: "术语表搜索" },
+
   // Stage titles ship in zh only when the rest of the stage's in-stage
   // labels (headings, summary toggles, card subtitles) have been
   // migrated and translated too — otherwise the title reads zh while
@@ -249,7 +256,7 @@ export const UI_STRINGS = {
   "stage.title.7": stageTitle("The Anomaly Log", "异常日志"),
   "stage.title.8": stageTitle("Who Steers the Ship", "由谁掌舵"),
   "stage.title.9": stageTitle("The Horizon", "地平线"),
-  "stage.title.10": stageTitle("End Credits", ""),
+  "stage.title.10": stageTitle("End Credits", "片尾字幕"),
 } as const satisfies Record<string, UiStringEntry>;
 
 export type UiStringId = keyof typeof UI_STRINGS;

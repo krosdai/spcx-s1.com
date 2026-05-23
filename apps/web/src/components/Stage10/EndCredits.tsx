@@ -17,6 +17,8 @@ export const EndCredits = ({ authored, caveat, glossary }: EndCreditsProps) => {
   const locale = useLocale();
   const title = useUiString("stage.title.10");
   const eyebrow = useStageEyebrow(10);
+  const forwardLookingHeading = useUiString("stage10.forward-looking.heading");
+  const glossarySearchLabel = useUiString("stage10.glossary.search.label");
   const [query, setQuery] = useState("");
   const normalizedQuery = query.trim().toLowerCase();
   // Glossary search matches against the term, the English definition,
@@ -85,7 +87,7 @@ export const EndCredits = ({ authored, caveat, glossary }: EndCreditsProps) => {
           </div>
 
           <article className="mt-12 border-l border-accent-amber pl-5">
-            <h3 className="text-xl font-semibold">Forward-Looking Statements</h3>
+            <h3 className="text-xl font-semibold">{forwardLookingHeading}</h3>
             <pre className="mt-4 whitespace-pre-wrap font-body text-sm leading-7 text-muted-white">
               {caveatDual.primary}
             </pre>
@@ -106,7 +108,7 @@ export const EndCredits = ({ authored, caveat, glossary }: EndCreditsProps) => {
             htmlFor="glossary-search"
             className="font-telemetry text-xs uppercase tracking-[0.16em] text-muted-white"
           >
-            Glossary Search
+            {glossarySearchLabel}
           </label>
           <input
             id="glossary-search"
