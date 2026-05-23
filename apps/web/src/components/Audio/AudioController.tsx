@@ -43,10 +43,23 @@ const useIsMobile = (): boolean => {
     const update = (event: MediaQueryListEvent) => {
       setIsMobile(event.matches);
     };
-    media.addEventListener("change", update);
 
+    // Modern browsers expose `addEventListener` on `MediaQueryList`;
+    // older Safari / iOS Safari only ship the legacy `addListener` /
+    // `removeListener` pair. Try the modern API first and fall back so
+    // the component doesn't throw on `AudioController` mount in those
+    // environments before the reader even toggles audio.
+    if (typeof media.addEventListener === "function") {
+      media.addEventListener("change", update);
+      return () => {
+        media.removeEventListener("change", update);
+      };
+    }
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
+    media.addListener(update);
     return () => {
-      media.removeEventListener("change", update);
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
+      media.removeListener(update);
     };
   }, []);
 
@@ -169,8 +182,16 @@ export const AudioController = () => {
 
     const audioEl = el;
     return observeStageEnter("stage-1", () => {
-      sfxPlayedRef.current.add(cue.id);
-      void audioEl.play().catch(() => undefined);
+      // Only latch the cue as played once `.play()` resolves. Until
+      // the asset lands in PR D₂ the file is 404 and the promise
+      // rejects — we want a future visit (where the file exists) to
+      // still fire the cue, not latch on the failure.
+      void audioEl
+        .play()
+        .then(() => {
+          sfxPlayedRef.current.add(cue.id);
+        })
+        .catch(() => undefined);
     });
   }, [audioOn, reducedMotion, isMobile, hasHydrated]);
 
@@ -194,8 +215,15 @@ export const AudioController = () => {
 
     const el = ttsRef.current;
     const cleanupObserver = observeStageEnter("stage-1", () => {
-      ttsPlayedRef.current = true;
-      void el.play().catch(() => undefined);
+      // Same latch-on-success rule as the SFX cue above — a 404 on
+      // the not-yet-shipped TTS file shouldn't burn the one-shot for
+      // a future visit where the file exists.
+      void el
+        .play()
+        .then(() => {
+          ttsPlayedRef.current = true;
+        })
+        .catch(() => undefined);
     });
 
     return () => {
