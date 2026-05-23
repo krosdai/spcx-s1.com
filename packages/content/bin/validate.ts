@@ -3,9 +3,9 @@
 import { validateContent } from "../src/validator";
 
 // Phase resolution order: --phase=N flag > CONTENT_PHASE env > default
-// (phase 1). Default stays at 1 until PR B fills the zh registry; once
-// that lands, the build switches to --phase=4 and rule 12 becomes a
-// hard error on the first missing translation.
+// (phase 4). The zh registry now covers every node id, so the default
+// gate enforces rule 12 (missing zh) as a hard error. Drop to phase 1
+// with `--phase=1` only to debug zh-only failures in isolation.
 const phaseFromArgs = (): 1 | 4 | undefined => {
   const flag = process.argv.find((arg) => arg.startsWith("--phase="));
   if (!flag) return undefined;
@@ -22,9 +22,9 @@ const phaseFromEnv = (): 1 | 4 | undefined => {
   return undefined;
 };
 
-const phase = phaseFromArgs() ?? phaseFromEnv();
+const phase: 1 | 4 = phaseFromArgs() ?? phaseFromEnv() ?? 4;
 
-const result = validateContent(phase === undefined ? {} : { phase });
+const result = validateContent({ phase });
 
 if (!result.ok) {
   console.error(JSON.stringify(result, null, 2));

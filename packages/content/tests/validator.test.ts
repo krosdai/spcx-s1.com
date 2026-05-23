@@ -135,13 +135,22 @@ describe("validator rules", () => {
   });
 
   it("catches rule 12 missing zh in phase 4", () => {
-    const result = validateContent({ phase: 4 });
+    const nodes = cloneNodes();
+    const idx = findSourcedIndex();
+    // The real content set is fully translated, so to exercise rule 12
+    // we mutate one node back to en-only and confirm the validator
+    // flags exactly that id.
+    nodes[idx] = { ...nodes[idx], text: { en: nodes[idx].text.en } };
 
-    expect(result.errors.some((error) => error.rule === 12)).toBe(true);
+    const result = validateContent({ nodes, phase: 4 });
+
+    expect(result.errors.some((error) => error.rule === 12 && error.id === nodes[idx].id)).toBe(
+      true,
+    );
   });
 
   it("does not flag rule 12 outside phase 4", () => {
-    const result = validateContent();
+    const result = validateContent({ phase: 1 });
 
     expect(result.errors.some((error) => error.rule === 12)).toBe(false);
   });

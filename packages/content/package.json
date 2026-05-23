@@ -13,9 +13,9 @@
     "validate-content": "./bin/validate.ts"
   },
   "scripts": {
-    "build": "tsc --noEmit && node --import tsx bin/validate.ts",
-    "validate": "node --import tsx bin/validate.ts",
-    "validate:phase4": "node --import tsx bin/validate.ts --phase=4",
+    "build": "tsc --noEmit && node --import tsx bin/validate.ts --phase=4",
+    "validate": "node --import tsx bin/validate.ts --phase=4",
+    "validate:phase1": "node --import tsx bin/validate.ts --phase=1",
     "audit-zh": "node --import tsx bin/audit-zh.ts",
     "refresh-manifest": "node --import tsx bin/refresh-manifest.ts",
     "test": "vitest run",
