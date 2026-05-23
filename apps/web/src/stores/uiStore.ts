@@ -79,14 +79,30 @@ export const useUIStore = create<UIState>()(
           if (typeof window === "undefined") {
             return () => undefined;
           }
+          if (typeof window.matchMedia !== "function") {
+            return () => undefined;
+          }
 
           const media = window.matchMedia("(prefers-reduced-motion: reduce)");
           const update = () => set({ reducedMotion: media.matches });
           update();
-          media.addEventListener("change", update);
 
+          // Modern browsers expose `addEventListener` on `MediaQueryList`;
+          // older Safari / iOS Safari only ship the legacy `addListener` /
+          // `removeListener` pair. `Shell` calls this on every mount, so a
+          // missing modern API would throw at startup before the reader
+          // ever touched the audio toggle.
+          if (typeof media.addEventListener === "function") {
+            media.addEventListener("change", update);
+            return () => {
+              media.removeEventListener("change", update);
+            };
+          }
+          // eslint-disable-next-line @typescript-eslint/no-deprecated
+          media.addListener(update);
           return () => {
-            media.removeEventListener("change", update);
+            // eslint-disable-next-line @typescript-eslint/no-deprecated
+            media.removeListener(update);
           };
         },
       };
