@@ -41,7 +41,13 @@ export default function Home() {
   };
 
   return (
-    <main id="main-content">
+    // `tabIndex={-1}` lets the skip link actually move focus into the
+    // main content. Without it, browsers that don't auto-focus
+    // non-interactive hash targets (Safari, some assistive tech)
+    // would scroll the page but leave keyboard focus on the skip
+    // link itself — the next Tab would then return through the
+    // persistent shell controls instead of the reading flow.
+    <main id="main-content" tabIndex={-1}>
       <MissionBriefing nodes={stage0} />
       <Stage0Stub />
       {STAGES.slice(1, 10).map((stage) => {

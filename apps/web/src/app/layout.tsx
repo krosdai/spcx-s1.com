@@ -41,13 +41,13 @@ export const metadata: Metadata = {
   creator: "Kros Dai",
   publisher: "Kros Dai",
   category: "finance",
+  // Single canonical URL, no hreflang cluster: locale selection is
+  // client-side (one document switches via the persistent shell
+  // toggle), so en/zh would resolve to the same href. Search engines
+  // treat a same-href hreflang cluster as invalid and may ignore the
+  // whole alternates block, so we keep just the canonical.
   alternates: {
     canonical: SITE_URL,
-    languages: {
-      en: SITE_URL,
-      zh: SITE_URL,
-      "x-default": SITE_URL,
-    },
   },
   openGraph: {
     type: "website",
@@ -92,9 +92,22 @@ interface RootLayoutProps {
   children: ReactNode;
 }
 
+// Inline script that flips `document.documentElement.lang` to the
+// persisted locale before React hydrates. Without this, returning
+// zh-locale visitors briefly see `<html lang="en">` until the Shell
+// effect catches up — which mis-cues screen readers and CJK font
+// shaping. Reads from the same `spcx-ui` key zustand's persist
+// middleware writes; bails silently on any parse/storage error so
+// the static-export HTML never throws at startup. Mirror this script
+// when the persist key in uiStore.ts changes.
+const SET_LANG_BEFORE_HYDRATE = `try{var r=localStorage.getItem('spcx-ui');if(r){var s=JSON.parse(r);var l=s&&s.state&&s.state.locale;if(l&&typeof l==='string'){document.documentElement.lang=l;}}}catch(e){}`;
+
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: SET_LANG_BEFORE_HYDRATE }} />
+      </head>
       <body>
         <SkipLink />
         <Shell />
