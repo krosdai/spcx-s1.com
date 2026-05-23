@@ -5,9 +5,30 @@ import type { ContentNode } from "@spcx/content";
 import { useLocale, useUiString } from "../../hooks/useLocalized";
 import { dualText } from "../../lib/localized";
 import { splitReflowedParagraphs } from "../../lib/textHelpers";
+import { UI_STRINGS, uiString, type UiStringId } from "../../lib/uiStrings";
 import { SourceRef } from "../SourceRef";
 import { StageSection } from "../StageSection";
 import { Kpi } from "./Kpi";
+
+// Milestone node ids look like `stage2.milestone.<year>.<slug>`, but
+// the registry keys are shared by year — `stage2.milestone.<year>.label` —
+// so the slug-specific suffix gets trimmed before lookup. Falls back to
+// the schema-stored English label when no entry exists.
+const MILESTONE_KEY = /^(stage2\.milestone\.[0-9-]+)\.[^.]+$/;
+
+const localizedMilestoneLabel = (
+  nodeId: string,
+  fallback: string,
+  locale: "en" | "zh",
+): string => {
+  const match = MILESTONE_KEY.exec(nodeId);
+  if (!match) return fallback;
+  const candidate = `${match[1]}.label` as UiStringId;
+  if (candidate in UI_STRINGS) {
+    return uiString(candidate, locale);
+  }
+  return fallback;
+};
 
 interface WhoWeAreProps {
   nodes: ContentNode[];
@@ -85,7 +106,9 @@ export const WhoWeAre = ({ nodes }: WhoWeAreProps) => {
                   <span className="font-telemetry text-sm tabular-nums text-accent-teal">
                     {node.milestone?.year ?? "—"}
                   </span>
-                  <span className="text-body-white">{node.milestone?.label ?? ""}</span>
+                  <span className="text-body-white">
+                    {localizedMilestoneLabel(node.id, node.milestone?.label ?? "", locale)}
+                  </span>
                 </div>
                 <SourceRef source={node.source} />
               </li>
