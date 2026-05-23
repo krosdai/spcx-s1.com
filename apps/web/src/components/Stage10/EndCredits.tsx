@@ -127,13 +127,13 @@ export const EndCredits = ({ authored, caveat, glossary }: EndCreditsProps) => {
               return (
                 <article key={node.id} className="border-t border-white/15 pt-4">
                   <h3 className="text-lg font-semibold">{node.glossary?.term}</h3>
-                  <p className="mt-2 whitespace-pre-wrap text-sm text-muted-white">{primary}</p>
+                  <p className="mt-2 text-sm text-muted-white">{reflowProse(primary)}</p>
                   {secondary ? (
                     <p
                       lang="zh"
-                      className="mt-2 whitespace-pre-wrap border-l border-white/15 pl-3 text-sm text-muted-white/80"
+                      className="mt-2 border-l border-white/15 pl-3 text-sm text-muted-white/80"
                     >
-                      {secondary}
+                      {reflowProse(secondary)}
                     </p>
                   ) : null}
                   <SourceRef source={node.source} />
