@@ -166,10 +166,29 @@ rules.
 
 ### Phase 4 — PR B: translations
 
-- [ ] Populate `zh.ts` with the 193 entries (proper-noun rules per
-      `docs/voice-and-visual.md`).
-- [ ] Fill `zh` values across `uiStrings.ts`.
-- [ ] Migrate scattered in-stage section labels onto `useUiString`.
+Delivered in two passes so the Chinese copy can be reviewed in
+focused chunks instead of a single 193-entry blob.
+
+PR B₁ — infra + small stages (this branch):
+
+- [x] Fill `zh` values across `uiStrings.ts` (shell controls, stage
+      titles, stage-0 modal copy, Stage 4 callout).
+- [x] Add `shell.stage-prefix` and a `useStageEyebrow(id)` hook so the
+      `Stage NN` telemetry chip switches with locale across every
+      stage component (StageSection, StagePlaceholder, MissionBriefing,
+      Stage0Stub, ColdOpenInner, Roadmap, Horizon, EndCredits).
+- [x] Populate `zh.ts` for stages 0 (4), 1 (1 Musk quote), and 4 (2)
+      — 7/193 entries covered.
+
+PR B₂ — remaining stage content (follow-up):
+
+- [ ] Populate `zh.ts` for stages 2/3/5/6/7/8/9 (64 entries) and
+      migrate their per-stage labels (Stage 7 `TITLE_OVERRIDES`,
+      Stage 8 `BLOCK_ORDER`, headings, summary toggles) onto the
+      registry.
+- [ ] Populate `zh.ts` for stage 10's glossary (122 entries, Kros to
+      draft) plus EndCredits' "Forward-Looking Statements" + glossary
+      search labels.
 - [ ] Flip the build script to `validate:phase4` so missing entries
       fail CI.
 
