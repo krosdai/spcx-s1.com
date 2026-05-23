@@ -53,6 +53,48 @@ export const UI_STRINGS = {
   // Stage 2 — Who We Are
   "stage2.kpis.aria": { en: "Headline scale metrics", zh: "核心规模指标" },
   "stage2.milestones.heading": { en: "Milestones", zh: "里程碑" },
+  // KPI / milestone metadata labels. The schema stores these on the
+  // node (kpi.label, milestone.label) in English; the registry here
+  // is the zh side so the cards switch with locale.
+  "stage2.kpi.mass-to-orbit.label": { en: "mass to orbit", zh: "入轨质量" },
+  "stage2.kpi.orbital-launches.label": { en: "orbital launches", zh: "轨道发射" },
+  "stage2.kpi.starlink-subscribers.label": {
+    en: "Starlink Subscribers",
+    zh: "Starlink 用户",
+  },
+  "stage2.milestone.2008.label": {
+    en: "First private liquid-fuel rocket to reach orbit",
+    zh: "首家液体燃料火箭入轨的私营公司",
+  },
+  "stage2.milestone.2012.label": {
+    en: "First private spacecraft to dock with the ISS",
+    zh: "首艘与国际空间站对接的私营飞船",
+  },
+  "stage2.milestone.2015-2017.label": {
+    en: "Propulsive landing and orbital-class booster reflight",
+    zh: "动力着陆与轨道级一级复用",
+  },
+  "stage2.milestone.2019.label": {
+    en: "Large-scale LEO broadband satellite constellation",
+    zh: "大规模 LEO 宽带卫星星座",
+  },
+  "stage2.milestone.2020.label": {
+    en: "Private astronaut transport to orbit",
+    zh: "私营公司将航天员送入轨道",
+  },
+  "stage2.milestone.2022.label": {
+    en: "Consumer-grade phased-array user terminals at scale",
+    zh: "消费级相控阵用户终端规模化",
+  },
+  "stage2.milestone.2025-2026.label": {
+    en: "Satellite-to-mobile, gigawatt-scale AI, and orbital AI compute capability",
+    zh: "卫星-移动、吉瓦级 AI 与在轨 AI 算力能力",
+  },
+  // KPI shared chrome — "As of <date>" supplemental label and Stage 6
+  // Revenue / Net income (loss) labels (shared across 3 cards each).
+  "kpi.as-of": { en: "As of", zh: "截至" },
+  "stage6.kpi.revenue.label": { en: "Revenue", zh: "收入" },
+  "stage6.kpi.net-income.label": { en: "Net income (loss)", zh: "净利润（亏损）" },
 
   // Stage 3 — The Three Pillars
   "stage3.pillar.eyebrow": { en: "Pillar", zh: "支柱" },
