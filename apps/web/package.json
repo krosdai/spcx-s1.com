@@ -17,7 +17,7 @@
     "@spcx/content": "workspace:*",
     "@tailwindcss/postcss": "^4.3.0",
     "motion": "^12.39.0",
-    "next": "^16.2.6",
+    "next": "^16.2.11",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "tailwindcss": "^4.3.0",
